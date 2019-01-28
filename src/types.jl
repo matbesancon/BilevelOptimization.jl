@@ -1,5 +1,11 @@
 
+"""
+Convenience alias for a matrix of a sub-type of `Real`
+"""
 const MT = AbstractMatrix{<:Real}
+"""
+Convenience alias for a vector of a sub-type of `Real`
+"""
 const VT = AbstractVector{<:Real}
 
 """
@@ -65,12 +71,18 @@ struct BilevelLP{V<:VT,M<:MT,MQ<:MT}
     end
 end
 
+"""
+VariableType enum distinguishing upper- and lower-level
+variables for setting upper and lower bounds
+"""
 @enum VariableType begin
     lower
-    higher
+    upper
 end
 
-
+"""
+Set a lower bound on a lower or higher variable of `bp` depending on `vartype`
+"""
 function JuMP.setlowerbound(bp::BilevelLP, vartype::VariableType, j::Integer, v::T) where {T<:Real}
     if vartype == lower::VariableType
         bp.yl[j] = v
@@ -79,6 +91,9 @@ function JuMP.setlowerbound(bp::BilevelLP, vartype::VariableType, j::Integer, v:
     end
 end
 
+"""
+Set an upper bound on a lower or higher variable of `bp` depending on `vartype`
+"""
 function JuMP.setupperbound(bp::BilevelLP, vartype::VariableType, j::Integer, v::T) where {T<:Real}
     if vartype == lower::VariableType
         bp.yu[j] = v

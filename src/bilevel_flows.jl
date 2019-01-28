@@ -1,5 +1,5 @@
 """
-Data structure and resolution of special types of bilevel flow problems
+Data structure and resolution methods of some forms of bilevel flow problems
 """
 module BilevelFlowProblems
 
@@ -7,8 +7,8 @@ using SparseArrays: spzeros
 using JuMP: @variable, @constraint, @objective
 import JuMP
 
-const MT = AbstractMatrix{<:Real}
-const VT = AbstractVector{<:Real}
+import ..MT
+import ..VT
 
 export BilevelFlowProblem
 
@@ -37,6 +37,9 @@ struct BilevelFlowProblem{M1<:MT,M2<:AbstractMatrix{Bool},M3<:MT,M4<:AbstractArr
     end
 end
 
+"""
+Build the JuMP model from the data of `bfp` and assign it the passed solver
+"""
 function build_blp_model(bfp::BilevelFlowProblem, solver)
     m = JuMP.Model(solver = solver)
     (nv, _, nopt) = size(bfp.tax_options)
@@ -59,6 +62,10 @@ function build_blp_model(bfp::BilevelFlowProblem, solver)
     return (m, r, y, f, λ)
 end
 
+"""
+Constructs the constraint matrix `B` and right-hand side vector `b`
+for the lower-level problem
+"""
 function flow_constraint_standard(bfp::BilevelFlowProblem)
     B = spzeros( # constraint matrix
         1 +        # min flow from source
@@ -90,8 +97,6 @@ function flow_constraint_standard(bfp::BilevelFlowProblem)
         B[bfp.nv-1+i+bfp.nv*(j-1),i+bfp.nv*(j-1)] = 1.
         b[bfp.nv-1+i+bfp.nv*(j-1)] = bfp.capacities[i,j]
     end
-    sc = sum(bfp.capacities) # upper bound on slack variable
-
     return (B, b)
 end
 

@@ -1,7 +1,7 @@
 
 """
 Build a JuMP model (constraints and objective)
-based on the data from bp
+based on the data from bp and with a solver
 """
 function build_blp_model(bp::BilevelLP, solver)
     m = JuMP.Model(solver = solver)
@@ -18,6 +18,11 @@ function build_blp_model(bp::BilevelLP, solver)
     return build_blp_model(m, bp, x, y)
 end
 
+"""
+Add the lower-level constraints and optimality conditions to
+an existing JuMP model. This assumes the upper-level feasibility
+constraints and objective have already been set
+"""
 function build_blp_model(m::JuMP.Model, bp::BilevelLP, x, y)
     @variable(m, s[1:bp.ml] >= 0) # lower-level slack variables
     @constraint(m, lowercons[i=1:bp.ml],
@@ -32,6 +37,10 @@ function build_blp_model(m::JuMP.Model, bp::BilevelLP, x, y)
     return (m, x, y, λ)
 end
 
+"""
+Build the bilevel JuMP model from the data without
+grouping everything into a `BilevelLP`
+"""
 function build_blp_model(m::JuMP.Model, B::M, d, x, y, s, F) where {M<:MT}
     ml = size(B)[1]
     @variable(m, λ[1:ml] >= 0)
