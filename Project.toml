@@ -1,0 +1,10 @@
+name = "BilevelOptimization"
+uuid = "9ff215ba-22e0-11e9-065b-7d3620c0405e"
+authors = ["Mathieu Besançon <mathieu.besancon@gmail.com>"]
+version = "0.1.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
