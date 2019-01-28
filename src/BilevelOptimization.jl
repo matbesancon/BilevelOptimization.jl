@@ -1,5 +1,11 @@
 module BilevelOptimization
 
-greet() = print("Hello World!")
+import JuMP
+using JuMP: @variable, @constraint, @objective
+
+export BilevelLP, build_blp_model
+
+include("types.jl")
+include("build_model.jl")
 
 end # module

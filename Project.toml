@@ -3,6 +3,10 @@ uuid = "9ff215ba-22e0-11e9-065b-7d3620c0405e"
 authors = ["Mathieu Besançon <mathieu.besancon@gmail.com>"]
 version = "0.1.0"
 
+[deps]
+Cbc = "9961bab8-2fa3-5c5a-9d89-47fab24efd76"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
