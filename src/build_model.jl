@@ -32,13 +32,27 @@ function build_blp_model(m::JuMP.Model, bp::BilevelLP, x, y)
     return (m, x, y, λ)
 end
 
-function build_blp_model(m::JuMP.Model, B::M, d::V, x, y, s, F) where {M<:MT,V<:VT}
+function build_blp_model(m::JuMP.Model, B::M, d, x, y, s, F) where {M<:MT}
     ml = size(B)[1]
-    @variable(m, s[1:ml] >= 0)
     @variable(m, λ[1:ml] >= 0)
-    @constraint(m, d .+ F' * x .+ B' * λ .== 0.0)
+    if F !== nothing
+        @constraint(m, d .+ F' * x .+ B' * λ .== 0.0)
+    else
+        @constraint(m, d .+ B' * λ .== 0.0)
+    end
+
     for i in Base.OneTo(ml)
         JuMP.addSOS1(m, [λ[i], s[i]])
     end
-    return (m, x, y, λ)
+    return (m, λ)
+end
+
+function build_blp_model(m::JuMP.Model, B::M, d, y, s) where {M<:MT}
+    ml = size(B)[1]
+    @variable(m, λ[1:ml] >= 0)
+    @constraint(m, d .+ B' * λ .== 0.0)
+    for i in Base.OneTo(ml)
+        JuMP.addSOS1(m, [λ[i], s[i]])
+    end
+    return (m, λ)
 end
