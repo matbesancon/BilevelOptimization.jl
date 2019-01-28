@@ -91,13 +91,13 @@ end
 
 @testset "Bilevel flow JuMP model" begin
     bfp = test_bflow()
-    (m, x, y, f, λ) = build_blp_model(bfp, CbcSolver())
+    (m, r, y, f, λ) = build_blp_model(bfp, CbcSolver())
     st = JuMP.solve(m)
     @test st === :Optimal
     @test getobjectivevalue(m) ≈ 6.
-    for j in 1:size(x)[2]
-        for i in 1:size(x)[1]
-            @test getvalue(x[i,j]) ≈ sum(getvalue(y[i,j,:]).*bfp.tax_options[i,j,:]) * getvalue(f[i,j])
+    for j in 1:size(r)[2]
+        for i in 1:size(r)[1]
+            @test getvalue(r[i,j]) ≈ sum(getvalue(y[i,j,:]).*bfp.tax_options[i,j,:]) * getvalue(f[i,j])
         end
     end
 end
