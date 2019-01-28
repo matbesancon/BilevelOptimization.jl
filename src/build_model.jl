@@ -35,22 +35,17 @@ end
 function build_blp_model(m::JuMP.Model, B::M, d, x, y, s, F) where {M<:MT}
     ml = size(B)[1]
     @variable(m, λ[1:ml] >= 0)
-    if F !== nothing
-        @constraint(m, d .+ F' * x .+ B' * λ .== 0.0)
-    else
-        @constraint(m, d .+ B' * λ .== 0.0)
-    end
-
+    @constraint(m, d .+ F' * x .+ B' * λ .== 0.0)
     for i in Base.OneTo(ml)
         JuMP.addSOS1(m, [λ[i], s[i]])
     end
     return (m, λ)
 end
 
-function build_blp_model(m::JuMP.Model, B::M, d, y, s) where {M<:MT}
-    ml = size(B)[1]
+function build_blp_model(m::JuMP.Model, B::M, d, s) where {M<:MT}
+    (ml,nl) = size(B)
     @variable(m, λ[1:ml] >= 0)
-    @constraint(m, d .+ B' * λ .== 0.0)
+    @constraint(m, kkt, d .+ B' * λ .== 0.0)
     for i in Base.OneTo(ml)
         JuMP.addSOS1(m, [λ[i], s[i]])
     end

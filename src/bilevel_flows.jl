@@ -42,31 +42,29 @@ function build_blp_model(bfp::BilevelFlowProblem, solver)
     @variable(m, y[i=1:nv,j=1:nv,k=1:nopt], Bin)
     @variable(m, x[i=1:nv,j=1:nv] >= 0.)
     @variable(m, f[i=1:nv,j=1:nv] >= 0.)
-    @constraint(m, limit1[i=1:nv,j=1:nv], x[i,j] <= bfp.capacities[i,j] * sum(y[i,j,k] * bfp.tax_options[i,j,k] for k in 1:nopt))
-    @constraint(m, limit2[i=1:nv,j=1:nv,k=1:nopt], x[i,j] <= f[i,j] * bfp.tax_options[i,j,k])
-    @constraint(m, unique_opt[i=1:nv,j=1:nv], sum(y[i,j,k] for k in 1:nopt) <= 1.)
+    @constraint(m, limit2[i=1:nv,j=1:nv,k=1:nopt], x[i,j] <= bfp.tax_options[i,j,k] * f[i,j] + maximum(bfp.tax_options[i,j,:]) * bfp.capacities[i,j]*(1-y[i,j,k]))
+    @constraint(m, unique_opt[i=1:nv,j=1:nv], sum(y[i,j,k] for k in 1:nopt) == 1.)
     @objective(m, Max,
-        sum(x[i,j] for i in 1:nv, j in nv if bfp.taxable_edges[i,j])
+        sum(x[i,j] for i in 1:nv for j in 1:nv if bfp.taxable_edges[i,j])
     )
     flat_flow = [f[i] for i in eachindex(f)]
-    flat_bin  = [y[i] for i in eachindex(y)]
     lin_cost  = [bfp.init_cost[i,j] + sum(y[i,j,k] * bfp.tax_options[i,j,k] for k in Base.OneTo(nopt)) for j in Base.OneTo(bfp.nv) for i in Base.OneTo(bfp.nv)]
     (B, b) = flow_constraint_standard(bfp)
-    sc = sum(bfp.capacities) # upper bound on slack variable
-    sbound = map(eachindex(b)) do i
-        if i == 1
-            1. # is never greater than 0. anyway
-        elseif i < bfp.nv
-            0. # slack at 0 for flow conservation constraints
-        else
-            bfp.capacities[bfp.nv-1+i]
-        end
-    end
+    # sc = maximum(bfp.capacities) # upper bound on capacity slack
+    # # sbound = map(eachindex(b)) do i
+    # #     if i == 1
+    # #         1. # is never greater than 0. anyway
+    # #     elseif i < bfp.nv
+    # #         0. # slack at 0 for flow conservation constraints
+    # #     else
+    # #         sc
+    # #     end
+    # # end
     @variable(m,
-        0. <= s[i=1:length(b)] <= sbound[i] # slack at 0 if flow constraints at nodes
+        s[i=1:length(b)] >= 0. # slack at 0 if flow constraints at nodes
     )
-    @constraint(m, B*flat_flow + s .== b)
-    (_, λ) = build_blp_model(m, B, lin_cost, flat_flow, s)
+    @constraint(m, B*flat_flow .+ s .== b)
+    (_, λ) = build_blp_model(m, B, lin_cost, s)
     return (m, x, y, f, λ)
 end
 
@@ -74,7 +72,7 @@ function flow_constraint_standard(bfp::BilevelFlowProblem)
     B = spzeros( # constraint matrix
         1 +        # min flow from source
         bfp.nv-2 + # flow conservation at all nodes but source & sink
-        bfp.ne,    # capacity at all edges
+        bfp.nv*bfp.nv,    # capacity at all edges
         bfp.nv*bfp.nv
     )
     b = zeros(size(B)[1])
@@ -97,13 +95,9 @@ function flow_constraint_standard(bfp::BilevelFlowProblem)
             end
         end
     end
-    edge_idx = bfp.nv
     for i in Base.OneTo(bfp.nv), j in Base.OneTo(bfp.nv)
-        if i != j && bfp.capacities[i,j] > 0.
-            B[edge_idx,bfp.nv*(j-1)+i] = 1.
-            b[edge_idx] = bfp.capacities[i,j]
-            edge_idx += 1
-        end
+        B[bfp.nv-1+i+bfp.nv*(j-1),i+bfp.nv*(j-1)] = 1.
+        b[bfp.nv-1+i+bfp.nv*(j-1)] = bfp.capacities[i,j]
     end
     sc = sum(bfp.capacities) # upper bound on slack variable
 

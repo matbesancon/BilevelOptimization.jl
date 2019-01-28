@@ -2,9 +2,10 @@ using BilevelOptimization
 using BilevelOptimization.BilevelFlowProblems
 
 using Test
+import LinearAlgebra
 
 using Cbc: CbcSolver
-import JuMP
+using JuMP
 
 test_bp() = BilevelLP(
     [1.,0.], [0.],
@@ -39,11 +40,15 @@ end
 end
 
 function test_bflow()
-    init_cost = ones(4, 4)
-    init_cost[1,4] = 4.
+    init_cost = [
+        0. 1. 1. 4.
+        0. 0. 0. 1.
+        0. 0. 0. 1.
+        0. 0. 0. 0.
+    ]
     taxable_edges = [
-        false false true false
-        false false false false
+        false true true false
+        false false false true
         false false false true
         false false false false
     ]
@@ -58,7 +63,7 @@ function test_bflow()
         0. 3. 2. 3.
         0. 0. 0. 2.
         0. 0. 0. 1.
-        0. 0. 0. 0. # these should not be used
+        0. 0. 0. 0.
     ]
     BilevelFlowProblem(init_cost,taxable_edges,capacities,tax_options,3.)
 end
@@ -66,7 +71,7 @@ end
 @testset "Flow problem matrix construction" begin
     bfp = test_bflow()
     (B,b) = BilevelFlowProblems.flow_constraint_standard(bfp)
-    @test size(B)[1] == bfp.nv-2 + 1 + bfp.ne
+    @test size(B)[1] == bfp.nv-2 + 1 + bfp.nv*bfp.nv
     @test sum(B[1,:]) ≈ -3.
     @test B[1,5] ≈ -1.
     @test B[1,9] ≈ -1.
@@ -80,16 +85,19 @@ end
     @test B[3,15] ≈ -1.
     @test b[3] ≈ 0.
     # capacity constraints
-    @test all(sum(B[i,:]) ≈ 1. for i in 4:8)
-    @test all(b[4:8] .≈ (3., 2., 3., 2., 1.))
-    @test B[4,5]  ≈ 1.
-    @test B[5,9]  ≈ 1.
-    @test B[6,13] ≈ 1.
-    @test B[7,14] ≈ 1.
-    @test B[8,15] ≈ 1.
+    @test all(LinearAlgebra.I - B[4:end,:] .≈ 0)
+    @test all(b[4:end] .≈ [bfp.capacities[i] for i in eachindex(bfp.capacities)])
 end
 
 @testset "Bilevel flow JuMP model" begin
     bfp = test_bflow()
-    build_blp_model(bfp, CbcSolver())
+    (m, x, y, f, λ) = build_blp_model(bfp, CbcSolver())
+    st = JuMP.solve(m)
+    @test st === :Optimal
+    @test getobjectivevalue(m) ≈ 6.
+    for j in 1:size(x)[2]
+        for i in 1:size(x)[1]
+            @test getvalue(x[i,j]) ≈ sum(getvalue(y[i,j,:]).*bfp.tax_options[i,j,:]) * getvalue(f[i,j])
+        end
+    end
 end
