@@ -37,6 +37,16 @@ the user can set `Jx = ∅` and `F` as a zero matrix of appropriate dimension.
 The problem can be made as complex as wanted **at the upper level**,
 as long as JuMP and the solver used support the constraints and objective.
 
+## Installation
+
+The package can be installed using Julia `Pkg` tool:
+```julia
+julia> ]
+(v1.0) pkg> add https://github.com/matbesancon/BilevelOptimization.jl
+```
+
+You will also need an optimization solver up and running with [JuMP](https://github.com/juliaopt/JuMP.jl).
+
 ## Resolution method
 
 `BilevelOptimization.jl` uses Special-ordered Sets of type 1 or [SOS1](https://en.wikipedia.org/wiki/Special_ordered_set) for complementarity constraints.
@@ -56,12 +66,18 @@ a given minimum amount from the source to the sink.
 
 This has been investigated in the literature as the "toll-setting problem".
 
+## Contributing
+
+Problems with the package and its usage can be explained through Github issues,
+ideally with a minimal working example showing the problem.
+Pull requests (PR) are welcome.
+
 ## Related packages
 
 * [Complementarity.jl](https://github.com/chkwon/Complementarity.jl solving a generic class
 including bilevel problems using non-linear techniques
 * [MibS](https://github.com/coin-or/MibS) for problems where the lower-level also includes integer variables. KKT conditions can therefore not be used and other branching and cutting plane techniques are leveraged.
-* [YALMIP](https://yalmip.github.io/tutorial/bilevelprogramming/) includes a bilevel solver and offers roughly the same features as BilevelOptimization.jl
+* [YALMIP](https://yalmip.github.io/tutorial/bilevelprogramming/) includes a bilevel solver and offers roughly the same features (and a bit more) as BilevelOptimization.jl
 
 ## Citing
 
