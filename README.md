@@ -1,5 +1,8 @@
 # BilevelOptimization
 
+[![Build Status](https://travis-ci.org/matbesancon/BilevelOptimization.jl.svg?branch=master)](https://travis-ci.org/matbesancon/BilevelOptimization.jl)
+[![codecov.io](http://codecov.io/github/matbesancon/BilevelOptimization.jl/coverage.svg?branch=master)](http://codecov.io/github/matbesancon/BilevelOptimization.jl?branch=master)
+
 This package is a Julia toolbox based on JuMP.jl for solving
 [bilevel optimization problems](https://en.wikipedia.org/wiki/Bilevel_optimization).
 These are encountered in various applications, including power grids, security games,
