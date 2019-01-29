@@ -39,6 +39,112 @@ end
     @test JuMP.getcategory(y[1]) == :Cont
 end
 
+@testset "Problem from Dempe-Mersha 2006" begin
+    # problem taken from:
+    # A.G. Mersha, S. Dempe,
+    # Linear bilevel programming with upper-level constraints depending on lower-level solution.
+    # Appl. Math. Computation (180), 2006
+    cx = [-1.]
+    cy = [-2.]
+    G = zeros(2,1) .+ [-2.,1.]
+    H = zeros(2,1) .+ [3.,1.]
+    q = [12.,14.]
+    d = [-1.]
+    A = zeros(2,1) .+ [-3.,3.]
+    B = ones(2,1)
+    b = [-3.,30.]
+    prob = BilevelLP(
+        cx, cy,
+        G, H, q,
+        d, A, B, b
+    )
+    (m, x, y, λ) = build_blp_model(prob, CbcSolver())
+    st = JuMP.solve(m)
+    @test st === :Optimal
+    @test getvalue(x)[1] ≈ 8.
+    @test getvalue(y)[1] ≈ 6.
+
+    # problem modification: passing upper-level constraints to lower level
+    A = zeros(4,1) .+ [-3.,3.,-2.,1.]
+    B = ones(4,1); B[3,1] = 3.
+    b = [-3.,30.,12.,14.]
+    prob = BilevelLP(
+        cx, cy,
+        G, H, q,
+        d, A, B, b
+    )
+    (m, x, y, λ) = build_blp_model(prob, CbcSolver())
+    st = solve(m)
+    @test st === :Optimal
+    @test getvalue(x)[1] ≈ 6.
+    @test getvalue(y)[1] ≈ 8.
+end
+
+@testset "Problem with upper bounds" begin
+    # problem taken from:
+    # Bilevel Programming Problems
+    # S. Dempe, V. Kalashnikov, G. Pérez-Valdés, N. Kalashnykova
+    # Springer 2015
+    cx = [2.,1.]
+    cy = [2.,-1.]
+    G = zeros(0,2)
+    H = zeros(0,2)
+    q = Float64[]
+    d = [0.,0.]
+    F = [1. 0.;0. 1.]
+    A = zeros(1,2)
+    B = [-2. 1.]
+    b = [0.]
+    prob = BilevelLP(
+        cx, cy,
+        G, H, q,
+        d, A, B, b, Int[], F
+    )
+    setlowerbound(prob, BilevelOptimization.upper, 1, -1.)
+    setupperbound(prob, BilevelOptimization.upper, 1, 1.)
+    setlowerbound(prob, BilevelOptimization.upper, 2, -1.)
+    setupperbound(prob, BilevelOptimization.upper, 2, -0.75)
+    setlowerbound(prob, BilevelOptimization.lower, 1, -Inf64)
+    setupperbound(prob, BilevelOptimization.lower, 1, 2.)
+    setlowerbound(prob, BilevelOptimization.lower, 2, 0.)
+    setupperbound(prob, BilevelOptimization.lower, 2, 2.)
+    @test size(prob.B) == (prob.ml,prob.nl)
+    (m, x, y, λ) = build_blp_model(prob, CbcSolver())
+    st = JuMP.solve(m)
+    @test st === :Optimal
+    @test all(getvalue(x) .≈ (-1.,-1.))
+end
+
+@testset "Upper-level integer problem" begin
+    # problem taken from:
+    # Bilevel Programming Problems
+    # S. Dempe, V. Kalashnikov, G. Pérez-Valdés, N. Kalashnykova
+    # Springer 2015
+    cx = [2.,0.]
+    cy = [3.,2.,6.]
+    G = [ 4.  1.
+         -4. -1.]
+    H = zeros(2,3)
+    q = [10.,-10.]
+    Jx = Int64[1, 2]
+    d = [-5.,-8.,-1.]
+    F = zeros(2,3)
+    B = [4. 2. 0.
+         2. 4. 1.]
+    A = [-1.  0.
+          0. -1.]
+    b = [0.,0.]
+    intprob = BilevelLP(
+        cx, cy,
+        G, H, q,
+        d, A, B, b, Jx
+    )
+    (m, x, y, λ) = build_blp_model(intprob, CbcSolver())
+    st = JuMP.solve(m)
+    @test st === :Optimal
+    @test all(getvalue(x) .≈ (2.,2.))
+end
+
 function test_bflow()
     init_cost = [
         0. 1. 1. 4.

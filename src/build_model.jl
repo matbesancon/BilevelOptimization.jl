@@ -5,8 +5,8 @@ based on the data from bp and with a solver
 """
 function build_blp_model(bp::BilevelLP, solver)
     m = JuMP.Model(solver = solver)
-    @variable(m, x[1:bp.nu] >= 0)
-    @variable(m, y[1:bp.nl] >= 0)
+    @variable(m, bp.xl[j] <= x[j=1:bp.nu] <= bp.xu[j])
+    @variable(m, y[j=1:bp.nl] >= bp.yl[j])
     @constraint(m, uppercons[i=1:bp.mu],
         sum(bp.G[i,j]*x[j] for j in 1:bp.nu) +
         sum(bp.H[i,j]*y[j] for j in 1:bp.nl) <= bp.q[i])

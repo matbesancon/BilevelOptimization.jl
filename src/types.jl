@@ -23,7 +23,7 @@ s.t. G x + H y <= q
 ```
 Note that integer variables are allowed at the upper level.
 """
-struct BilevelLP{V<:VT,M<:MT,MQ<:MT}
+mutable struct BilevelLP{V<:VT,M<:MT,MQ<:MT}
     cx::V
     cy::V
     G::M
@@ -93,11 +93,17 @@ end
 
 """
 Set an upper bound on a lower or higher variable of `bp` depending on `vartype`
+Since we need the dual for lower-level upper bounds, this case is registered as
+a constraint.
 """
 function JuMP.setupperbound(bp::BilevelLP, vartype::VariableType, j::Integer, v::T) where {T<:Real}
-    if vartype == lower::VariableType
-        bp.yu[j] = v
-    else
+    if vartype == upper::VariableType
         bp.xu[j] = v
+    else
+        row = zeros(1,bp.nl); row[1,j] = 1.
+        bp.B = vcat(bp.B, row)
+        bp.A = vcat(bp.A, zeros(1,bp.nu))
+        push!(bp.b, v)
+        bp.ml = bp.ml + 1
     end
 end
