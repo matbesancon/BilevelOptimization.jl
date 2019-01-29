@@ -23,7 +23,7 @@ s.t. G x + H y <= q
 ```
 Note that integer variables are allowed at the upper level.
 """
-mutable struct BilevelLP{V<:VT,M<:MT,MQ<:MT}
+mutable struct BilevelLP{V<:VT,M<:MT,MQ<:MT,VB<:AbstractVector{Bool}}
     cx::V
     cy::V
     G::M
@@ -39,7 +39,7 @@ mutable struct BilevelLP{V<:VT,M<:MT,MQ<:MT}
     ml::Int
     xl::V
     xu::V
-    yl::V
+    yl::VB # if lowerbound yi >= 0, otherwise yi >= -∞. For other bounds, add a constraint
     yu::V
     Jx::Vector{Int} # ∀ j ∈ Jx, x[j] is integer
     F::MQ
@@ -54,7 +54,7 @@ mutable struct BilevelLP{V<:VT,M<:MT,MQ<:MT}
                        B::M,
                        b::V,
                        Jx::Vector{Int} = Int[],
-                       F::MQ = zeros(length(cx),length(cy))) where {V<:VT,M<:MT,MQ<:MT}
+                       F::MQ = zeros(length(cx),length(cy)); ylowerbound = true) where {V<:VT,M<:MT,MQ<:MT}
         nu = length(cx)
         nl = length(cy)
         nl == length(d) || DimensionMismatch("Objectives")
@@ -64,10 +64,10 @@ mutable struct BilevelLP{V<:VT,M<:MT,MQ<:MT}
         size(G) == (mu,nu) && size(H) == (mu,nl) || DimensionMismatch("Higher constraints")
         xl = zeros(nu)
         xu = Inf64 .* ones(nu)
-        yl = zeros(nl)
+        yl = zeros(Bool, nl) .+ ylowerbound # by default, y >= 0
         yu = Inf64 .* ones(nl)
         size(F) == (nu,nl) || DimensionMismatch("Quadratic constraint")
-        new{V,M,MQ}(cx,cy,G,H,q,d,A,B,b,nu,nl,mu,ml,xl,xu,yl,yu,Jx,F)
+        new{V,M,MQ,Vector{Bool}}(cx,cy,G,H,q,d,A,B,b,nu,nl,mu,ml,xl,xu,yl,yu,Jx,F)
     end
 end
 
@@ -85,10 +85,17 @@ Set a lower bound on a lower or higher variable of `bp` depending on `vartype`
 """
 function JuMP.setlowerbound(bp::BilevelLP, vartype::VariableType, j::Integer, v::T) where {T<:Real}
     if vartype == lower::VariableType
-        bp.yl[j] = v
+        if v ≈ 0.
+            bp.yl[j] = true
+        elseif isinf(v) && v < 0.
+            bp.yl[j] = false
+        else
+            throw(DomainError(v,"The lower bound on a lower variable can only be 0 or -∞"))
+        end
     else
         bp.xl[j] = v
     end
+    return nothing
 end
 
 """

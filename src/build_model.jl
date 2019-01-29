@@ -6,7 +6,7 @@ based on the data from bp and with a solver
 function build_blp_model(bp::BilevelLP, solver)
     m = JuMP.Model(solver = solver)
     @variable(m, bp.xl[j] <= x[j=1:bp.nu] <= bp.xu[j])
-    @variable(m, y[j=1:bp.nl] >= bp.yl[j])
+    @variable(m, y[j=1:bp.nl])
     @constraint(m, uppercons[i=1:bp.mu],
         sum(bp.G[i,j]*x[j] for j in 1:bp.nu) +
         sum(bp.H[i,j]*y[j] for j in 1:bp.nl) <= bp.q[i])
@@ -29,8 +29,20 @@ function build_blp_model(m::JuMP.Model, bp::BilevelLP, x, y)
         sum(bp.A[i,j]*x[j] for j in 1:bp.nu) +
         sum(bp.B[i,j]*y[j] for j in 1:bp.nl) + s[i] == bp.b[i]
     )
-    @variable(m, λ[1:bp.ml] >= 0)
-    @constraint(m, bp.d .+ bp.F' * x .+ bp.B' * λ .== 0.0)
+    @variable(m, λ[1:bp.ml] >= 0.)
+    @variable(m, σ[1:bp.nl] >= 0.) # dual of lower-level lower bound
+    for j in Base.OneTo(bp.nl)
+        if !bp.yl[j]
+            # sigma at 0 if free variable
+            @constraint(m, σ[j] == 0.)
+        else
+            JuMP.setlowerbound(y[j], 0.)
+        end
+    end
+    @constraint(m, bp.d .+ bp.F' * x .+ bp.B' * λ  .- σ .== 0.0)
+    for j in Base.OneTo(bp.nl)
+        JuMP.addSOS1(m, [σ[j], y[j]])
+    end
     for i in Base.OneTo(bp.ml)
         JuMP.addSOS1(m, [λ[i], s[i]])
     end

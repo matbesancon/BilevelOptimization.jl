@@ -130,6 +130,28 @@ end
     d = [-5.,-8.,-1.]
     F = zeros(2,3)
     B = [4. 2. 0.
+         2. 4. 1.
+        -1. 0. 0.
+         0. -1. 0.
+         0. 0. -1.
+         ]
+    A = [-1.  0.
+          0. -1.
+          0.  0.
+          0.  0.
+          0.  0.]
+    b = [0.,0.,0.,0.,0.]
+    intprob = BilevelLP(
+        cx, cy,
+        G, H, q,
+        d, A, B, b, Jx, ylowerbound = false
+    )
+    (m, x, y, λ) = build_blp_model(intprob, CbcSolver())
+    st = JuMP.solve(m)
+    @test st === :Optimal
+    @test all(getvalue(x) .≈ (2.,2.))
+    @test all(getvalue(y) .≈ (1//3,1//3,0))
+    B = [4. 2. 0.
          2. 4. 1.]
     A = [-1.  0.
           0. -1.]
@@ -143,6 +165,7 @@ end
     st = JuMP.solve(m)
     @test st === :Optimal
     @test all(getvalue(x) .≈ (2.,2.))
+    @test all(getvalue(y) .≈ (1//3,1//3,0))
 end
 
 function test_bflow()
