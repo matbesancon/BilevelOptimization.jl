@@ -1,5 +1,5 @@
 ---
-title: 'BilevelOptimization.jl: A Julia package for bilevel optimization problems'
+title: 'A Julia package for bilevel optimization problems'
 tags:
   - Julia
   - JuMP
