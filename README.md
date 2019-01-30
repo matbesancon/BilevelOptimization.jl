@@ -67,11 +67,13 @@ a given minimum amount from the source to the sink.
 
 This has been investigated in the literature as the "toll-setting problem".
 
-## Contributing
+## Questions, issues, contributions
 
 Problems with the package and its usage can be explained through Github issues,
 ideally with a minimal working example showing the problem.
-Pull requests (PR) are welcome.
+Pull requests (PR) are welcome.  
+
+Please read detailed information in **CONTRIBUTING.md**.
 
 ## Related packages
 
