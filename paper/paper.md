@@ -51,9 +51,9 @@ A generic formulation for a bilevel problem is:
 $$\min_{x} F(x,y)
 \text{s.t.}
 G_i(x,y) \leq 0 \forall i \in \{1..m_u\}
-y \in arg \min_y { f(x,y),
+y \in arg \min_y \{ f(x,y),
                    g_i(x,y) \leq 0 \forall i \in \{1..m_l\}
-                 }.$$
+                 \}.$$
 
 If the lower-level problem is convex, i.e. if the functions $f(x,y)$ and
 $g_i(x,\cdot)$ are convex and if Slater's qualification constraints hold,
@@ -74,10 +74,10 @@ $$\min_{x} c_x^T x + c_y^T y
 G x + H y \leq q
 x \geq 0
 x_j \in \mathcal{Z}_+ \forall j \in Jx
-y \in arg \min_y { d^T y + x^T F y,
+y \in arg \min_y \{ d^T y + x^T F y,
                    A x + B y \leq b
                    y \geq 0
-                 }.$$
+                 \}.$$
 
 The single-level reduction of the optimistic version of this problem is:
 $$\min_{x} c_x^T x + c_y^T y
