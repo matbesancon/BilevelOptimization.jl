@@ -89,7 +89,7 @@ y \geq 0
 \lambda \geq 0
 x_j \in \mathcal{Z}_+ \forall j \in J_x
 d + F^T x + B^T \lambda = 0
-\lambda_i \cdot (b_i - Ax_i - By_i) = 0 \forall i \in \{1..m_l\}}.$$
+\lambda_i \cdot (b_i - Ax_i - By_i) = 0 \forall i \in \{1..m_l\}.$$
 
 The last equation is a complementarity constraint, corresponding
 to the fact that at least one of $(\lambda_i, s_i)$ has to be equal
