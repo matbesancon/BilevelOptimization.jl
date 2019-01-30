@@ -140,7 +140,7 @@ formulations. The only requirement is that the solver must support
 the type of constraints specified and special ordered sets 1.
 This flexibility allows users to leverage some recent advances on
 mixed-integer convex optimization and solvers tackling these problems
-[@LubinYamangilBentVielma2016]. As of the current state of BilevelOptimization,
+[@LubinYamangilBentVielma2016]. As of the current state of BilevelOptimization.jl,
 the only restricted part of the model is the linear-quadratic lower-level.
 
 # References
