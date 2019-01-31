@@ -48,12 +48,15 @@ and a solving method which is compatible with the JuMP workflow.
 
 A generic formulation for a bilevel problem is:
 
-$$\min_{x} F(x,y)$$  
-$$\text{s.t.}$$
-$$G_i(x,y) \leq 0 \forall i \in \{1..m_u\}$$  
-$$y \in arg \min_y \{ f(x,y),$$  
-$$g_i(x,y) \leq 0 \forall i \in \{1..m_l\}$$  
-$$\}.$$  
+```
+min_x F(x,y)
+s.t.
+Gₖ(x,y) ⩽ 0 ∀ k ∈ {1..mᵤ}
+y ∈ arg min_y {f(x,y)
+               s.t.
+               gᵢ(x,y) ⩽ 0 ∀ i ∈ {1..mₗ}
+              }
+```
 
 If the lower-level problem is convex, i.e. if the functions $f(x,y)$ and
 $g_i(x,\cdot)$ are convex and if Slater's qualification constraints hold,
@@ -69,27 +72,30 @@ BilevelOptimization.jl is the optimistic one, allowing for more
 easily reformulated problems.  
 
 This package is initially designed for a restricted form:
-$$\min_{x} c_x^T x + c_y^T y$$  
-$$\text{s.t.}$$  
-$$G x + H y \leq q$$  
-$$x \geq 0$$  
-$$x_j \in \mathcal{Z}_+ \forall j \in Jx$$  
-$$y \in arg \min_y \{ d^T y + x^T F y,$$  
-$$                   A x + B y \leq b $$  
-$$                   y \geq 0  $$  
-$$                 \}.$$  
+```
+min_x cx^T x + cy^T y
+s.t.
+G x + H y ⩽ q
+x ⩾ 0
+xⱼ ∈ ℤ⁺ ∀ j ∈ Jx
+y ∈ arg min_y {d^T y + x^T F y
+               s.t.
+               A x + B y ⩽ b
+               y ⩾ 0
+              }
+```
 
 The single-level reduction of the optimistic version of this problem is:
-$$\min_{x} c_x^T x + c_y^T y$$  
-$$\text{s.t.}$$  
-$$G x + H y \leq q$$  
-$$A x + B y \leq b$$  
-$$x \geq 0 $$  
-$$y \geq 0 $$  
-$$\lambda \geq 0$$  
-$$x_j \in \mathcal{Z}_+ \forall j \in J_x $$  
-$$d + F^T x + B^T \lambda = 0 $$  
-$$\lambda_i \cdot (b_i - Ax_i - By_i) = 0 \forall i \in \{1..m_l\}.$$   
+```
+min_{x,y,λ} cx^T x + cy^T y
+s.t.
+G x + H y ⩽ q
+A x + B y ⩽ b
+x, y ⩾ 0
+xⱼ ∈ ℤ⁺ ∀ j ∈ Jx
+d + F^T x + B^T λ = 0
+λᵢ ⋅ (b - A x - B y)ᵢ = 0 ∀ i ∈ {1..mₗ}
+```
 
 The last equation is a complementarity constraint, corresponding
 to the fact that at least one of $(\lambda_i, s_i)$ has to be equal
