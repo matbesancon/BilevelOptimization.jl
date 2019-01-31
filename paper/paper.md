@@ -48,13 +48,13 @@ and a solving method which is compatible with the JuMP workflow.
 
 A generic formulation for a bilevel problem is:
 
-```
+```julia
 min_x F(x,y)
 s.t.
-Gₖ(x,y) ⩽ 0 ∀ k ∈ {1..mᵤ}
-y ∈ arg min_y {f(x,y)
+G_k(x,y) <= 0 for k in {1..mu}
+y in arg min_y {f(x,y)
                s.t.
-               gᵢ(x,y) ⩽ 0 ∀ i ∈ {1..mₗ}
+               g_i(x,y) <= 0 for i in {1..ml}
               }
 ```
 
@@ -72,29 +72,29 @@ BilevelOptimization.jl is the optimistic one, allowing for more
 easily reformulated problems.  
 
 This package is initially designed for a restricted form:
-```
+```julia
 min_x cx^T x + cy^T y
 s.t.
-G x + H y ⩽ q
-x ⩾ 0
-xⱼ ∈ ℤ⁺ ∀ j ∈ Jx
-y ∈ arg min_y {d^T y + x^T F y
+G x + H y <= q
+x >= 0
+x[j] integer for j in Jx
+y in arg min_y {d^T y + x^T F y
                s.t.
-               A x + B y ⩽ b
-               y ⩾ 0
+               A x + B y <= b
+               y >= 0
               }
 ```
 
 The single-level reduction of the optimistic version of this problem is:
-```
-min_{x,y,λ} cx^T x + cy^T y
+```julia
+min_{x,y,lambda} cx^T x + cy^T y
 s.t.
-G x + H y ⩽ q
-A x + B y ⩽ b
-x, y ⩾ 0
-xⱼ ∈ ℤ⁺ ∀ j ∈ Jx
-d + F^T x + B^T λ = 0
-λᵢ ⋅ (b - A x - B y)ᵢ = 0 ∀ i ∈ {1..mₗ}
+G x + H y <= q
+A x + B y <= b
+x, y >= 0
+x[j] integer for j in Jx
+d + F^T x + B^T * lambda = 0
+lambda[i] * (b - A x - B y)[i] = 0 for i in {1..ml}
 ```
 
 The last equation is a complementarity constraint, corresponding
@@ -112,7 +112,7 @@ JuMP supports the modeling of Special Ordered Sets 1 with the following syntax:
 
 ```julia
 for i in 1:ml
-    JuMP.addSOS1(m, [λ[i], s[i]])
+    JuMP.addSOS1(m, [lambda[i], s[i]])
 end
 ```
 
