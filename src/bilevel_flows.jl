@@ -58,8 +58,8 @@ function build_blp_model(bfp::BilevelFlowProblem, solver)
         s[i=1:length(b)] >= 0.
     )
     @constraint(m, B*flat_flow .+ s .== b)
-    (_, λ) = build_blp_model(m, B, lin_cost, s)
-    return (m, r, y, f, λ)
+    (_, λ, _) = build_blp_model(m, B, lin_cost, s)
+    return (m, r, y, f, λ, s)
 end
 
 """
