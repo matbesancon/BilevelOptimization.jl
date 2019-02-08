@@ -46,7 +46,7 @@ function build_blp_model(m::JuMP.Model, bp::BilevelLP, x, y)
     for i in Base.OneTo(bp.ml)
         JuMP.addSOS1(m, [λ[i], s[i]])
     end
-    return (m, x, y, λ)
+    return (m, x, y, λ, s)
 end
 
 """
@@ -60,7 +60,7 @@ function build_blp_model(m::JuMP.Model, B::M, d, x, y, s, F) where {M<:MT}
     for i in Base.OneTo(ml)
         JuMP.addSOS1(m, [λ[i], s[i]])
     end
-    return (m, λ)
+    return (m, λ, s)
 end
 
 function build_blp_model(m::JuMP.Model, B::M, d, s) where {M<:MT}
@@ -70,5 +70,5 @@ function build_blp_model(m::JuMP.Model, B::M, d, s) where {M<:MT}
     for i in Base.OneTo(ml)
         JuMP.addSOS1(m, [λ[i], s[i]])
     end
-    return (m, λ)
+    return (m, λ, s)
 end
