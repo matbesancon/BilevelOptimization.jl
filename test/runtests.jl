@@ -237,3 +237,25 @@ end
     BilevelOptimization.add_complementarity_constraint(m, BilevelOptimization.SOS1Complementarity, [], [], [], [])
     BilevelOptimization.add_complementarity_constraint(m, BilevelOptimization.SOS1Complementarity, [], [], [], [])
 end
+
+@testset "Basic problem with specified methods" begin
+    bp = test_bp()
+    (m, x, y, λ) = build_blp_model(bp, CbcSolver(), comp_method = BilevelOptimization.SOS1Complementarity)
+    status = JuMP.solve(m)
+    @test status === :Optimal
+    xv = JuMP.getvalue(x)
+    yv = JuMP.getvalue(y)
+    @test xv[1] ≈ 0.0
+    @test yv[1] ≈ 1.0
+    (m, _, _, _) = build_blp_model(bp, CbcSolver(), comp_method = BilevelOptimization.SOS1Complementarity())
+    status = JuMP.solve(m)
+    @test status === :Optimal
+    # arbitrary big-enough bounds
+    (m, x, y, λ) = build_blp_model(bp, CbcSolver(), comp_method = BilevelOptimization.BoundComplementarity(100.,100.))
+    status = JuMP.solve(m)
+    @test status === :Optimal
+    xv = JuMP.getvalue(x)
+    yv = JuMP.getvalue(y)
+    @test xv[1] ≈ 0.0
+    @test yv[1] ≈ 1.0
+end

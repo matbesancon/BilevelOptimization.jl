@@ -17,7 +17,7 @@ struct BoundComplementarity{MD,MP} <: ComplementarityMethod
     Md::MD
     Mp::MP
     function BoundComplementarity(md::MD, mp::MP) where {MD <: Union{AbstractVector,Real}, MP <: Union{AbstractVector,Real}}
-        new{MD,MP}(Md,Mp)
+        new{MD,MP}(md,mp)
     end
 end
 
@@ -73,12 +73,12 @@ Add primal bounds with one bound for each element
 """
 function add_bigm_primalbounds(m, bc::BoundComplementarity{MD,MP}, active_constraint, variable_bound, s, y) where {MD,MP<:AbstractVector{<:Real}}
     ml = length(s)
-    length(bc.mp) == ml + length(y) || throw(DimensionMismatch("Primal bound vector"))
+    length(bc.Mp) == ml + length(y) || throw(DimensionMismatch("Primal bound vector"))
     @constraint(m, [i=1:ml],
-        s[i] <= bc.mp[i] * (1. - active_constraint[i])
+        s[i] <= bc.Mp[i] * (1. - active_constraint[i])
     )
     @constraint(m, [j=1:length(y)],
-        y[j] <= bc.mp[j+ml] * (1. - variable_bound[j])
+        y[j] <= bc.Mp[j+ml] * (1. - variable_bound[j])
     )
     return nothing
 end
@@ -88,10 +88,10 @@ Add primal bounds with the same bound for all elements
 """
 function add_bigm_primalbounds(m, bc::BoundComplementarity{MD,MP}, active_constraint, variable_bound, s, y) where {MD,MP<:Real}
     @constraint(m, [i=1:length(s)],
-        s[i] <= bc.mp * (1. - active_constraint[i])
+        s[i] <= bc.Mp * (1. - active_constraint[i])
     )
     @constraint(m, [j=1:length(y)],
-        y[j] <= bc.mp * (1. - variable_bound[j])
+        y[j] <= bc.Mp * (1. - variable_bound[j])
     )
     return nothing
 end
@@ -101,12 +101,12 @@ Add dual bounds with one bound for each element
 """
 function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,MP}, active_constraint, variable_bound, λ, σ) where {MD<:AbstractVector{<:Real},MP}
     ml = length(λ)
-    length(bc.md) == ml + length(σ) || throw(DimensionMismatch("Dual bound vector"))
+    length(bc.Md) == ml + length(σ) || throw(DimensionMismatch("Dual bound vector"))
     @constraint(m, [i=1:ml],
-        λ[i] <= bc.md[i] * active_constraint[i]
+        λ[i] <= bc.Md[i] * active_constraint[i]
     )
     @constraint(m, [j=1:length(σ)],
-        σ[j] <= bc.md[ml+j] * variable_bound[j]
+        σ[j] <= bc.Md[ml+j] * variable_bound[j]
     )
     return nothing
 end
@@ -116,10 +116,10 @@ Add dual bounds with the same bound for all elements
 """
 function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,MP}, active_constraint, variable_bound, λ) where {MD<:Real,MP}
     @constraint(m, [i=1:length(λ)],
-        λ[i] <= bc.md * active_constraint[i]
+        λ[i] <= bc.Md * active_constraint[i]
     )
     @constraint(m, [j=1:length(σ)],
-        σ[j] <= bc.md * variable_bound[j]
+        σ[j] <= bc.Md * variable_bound[j]
     )
     return nothing
 end
