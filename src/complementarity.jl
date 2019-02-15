@@ -99,7 +99,7 @@ end
 """
 Add dual bounds with one bound for each element
 """
-function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,MP}, active_constraint, variable_bound, λ, σ) where {MD<:AbstractVector{<:Real},MP}
+function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,<:Any}, active_constraint, variable_bound, λ, σ) where {MD<:AbstractVector{<:Real}}
     ml = length(λ)
     length(bc.Md) == ml + length(σ) || throw(DimensionMismatch("Dual bound vector"))
     @constraint(m, [i=1:ml],
@@ -114,7 +114,7 @@ end
 """
 Add dual bounds with the same bound for all elements
 """
-function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,MP}, active_constraint, variable_bound, λ) where {MD<:Real,MP}
+function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,<:Any}, active_constraint, variable_bound, λ, σ) where {MD<:Real}
     @constraint(m, [i=1:length(λ)],
         λ[i] <= bc.Md * active_constraint[i]
     )

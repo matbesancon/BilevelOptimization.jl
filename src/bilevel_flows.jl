@@ -13,6 +13,7 @@ import ..VT
 export BilevelFlowProblem
 
 import ..build_blp_model
+import ..SOS1Complementarity
 
 """
 Holding the information of a bilevel flow problem:
@@ -40,7 +41,7 @@ end
 """
 Build the JuMP model from the data of `bfp` and assign it the passed solver
 """
-function build_blp_model(bfp::BilevelFlowProblem, solver)
+function build_blp_model(bfp::BilevelFlowProblem, solver; comp_method = SOS1Complementarity())
     m = JuMP.Model(solver = solver)
     (nv, _, nopt) = size(bfp.tax_options)
     @variable(m, y[i=1:nv,j=1:nv,k=1:nopt], Bin)
@@ -58,7 +59,7 @@ function build_blp_model(bfp::BilevelFlowProblem, solver)
         s[i=1:length(b)] >= 0.
     )
     @constraint(m, B*flat_flow .+ s .== b)
-    (_, λ) = build_blp_model(m, B, lin_cost, s)
+    (_, λ) = build_blp_model(m, B, lin_cost, s, comp_method = comp_method)
     return (m, r, y, f, λ)
 end
 

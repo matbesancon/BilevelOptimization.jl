@@ -15,7 +15,7 @@ function build_blp_model(bp::BilevelLP, solver; comp_method = SOS1Complementarit
         JuMP.setcategory(x[j], :Int)
     end
     # adding SOS1 constraints
-    return build_blp_model(m, bp, x, y, comp_method = SOS1Complementarity())
+    return build_blp_model(m, bp, x, y, comp_method = comp_method)
 end
 
 """

@@ -259,3 +259,16 @@ end
     @test xv[1] ≈ 0.0
     @test yv[1] ≈ 1.0
 end
+
+@testset "Bilevel flow big-M bounds" begin
+    bfp = test_bflow()
+    (m, r, y, f, λ) = build_blp_model(bfp, CbcSolver(), comp_method = BilevelOptimization.BoundComplementarity(100., 100.))
+    st = JuMP.solve(m)
+    @test st === :Optimal
+    @test getobjectivevalue(m) ≈ 6.
+    for j in 1:size(r)[2]
+        for i in 1:size(r)[1]
+            @test getvalue(r[i,j]) ≈ sum(getvalue(y[i,j,:]).*bfp.tax_options[i,j,:]) * getvalue(f[i,j])
+        end
+    end
+end
