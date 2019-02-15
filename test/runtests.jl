@@ -230,3 +230,10 @@ end
         end
     end
 end
+
+@testset "Complementarity types" begin
+    m = JuMP.Model()
+    # testing non-crashing
+    BilevelOptimization.add_complementarity_constraint(m, BilevelOptimization.SOS1Complementarity, [], [], [], [])
+    BilevelOptimization.add_complementarity_constraint(m, BilevelOptimization.SOS1Complementarity, [], [], [], [])
+end
