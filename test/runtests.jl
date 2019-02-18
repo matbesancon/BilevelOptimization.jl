@@ -234,24 +234,24 @@ end
 @testset "Complementarity types" begin
     m = JuMP.Model()
     # testing non-crashing
-    BilevelOptimization.add_complementarity_constraint(m, BilevelOptimization.SOS1Complementarity, [], [], [], [])
-    BilevelOptimization.add_complementarity_constraint(m, BilevelOptimization.SOS1Complementarity, [], [], [], [])
+    BilevelOptimization.add_complementarity_constraint(m, SOS1Complementarity, [], [], [], [])
+    BilevelOptimization.add_complementarity_constraint(m, SOS1Complementarity, [], [], [], [])
 end
 
 @testset "Basic problem with specified methods" begin
     bp = test_bp()
-    (m, x, y, λ) = build_blp_model(bp, CbcSolver(), comp_method = BilevelOptimization.SOS1Complementarity)
+    (m, x, y, λ) = build_blp_model(bp, CbcSolver(), comp_method = SOS1Complementarity)
     status = JuMP.solve(m)
     @test status === :Optimal
     xv = JuMP.getvalue(x)
     yv = JuMP.getvalue(y)
     @test xv[1] ≈ 0.0
     @test yv[1] ≈ 1.0
-    (m, _, _, _) = build_blp_model(bp, CbcSolver(), comp_method = BilevelOptimization.SOS1Complementarity())
+    (m, _, _, _) = build_blp_model(bp, CbcSolver(), comp_method = SOS1Complementarity())
     status = JuMP.solve(m)
     @test status === :Optimal
     # arbitrary big-enough bounds
-    (m, x, y, λ) = build_blp_model(bp, CbcSolver(), comp_method = BilevelOptimization.BoundComplementarity(100.,100.))
+    (m, x, y, λ) = build_blp_model(bp, CbcSolver(), comp_method = BoundComplementarity(100.,100.))
     status = JuMP.solve(m)
     @test status === :Optimal
     xv = JuMP.getvalue(x)
@@ -262,7 +262,7 @@ end
 
 @testset "Bilevel flow big-M bounds" begin
     bfp = test_bflow()
-    (m, r, y, f, λ) = build_blp_model(bfp, CbcSolver(), comp_method = BilevelOptimization.BoundComplementarity(100., 100.))
+    (m, r, y, f, λ) = build_blp_model(bfp, CbcSolver(), comp_method = BoundComplementarity(100., 100.))
     st = JuMP.solve(m)
     @test st === :Optimal
     @test getobjectivevalue(m) ≈ 6.
@@ -275,7 +275,7 @@ end
 
 @testset "Bilevel flow big-M vector bounds" begin
     bfp = test_bflow()
-    bounds_method = BilevelOptimization.BoundComplementarity(10 .* ones(19), 30.)
+    bounds_method = BoundComplementarity(10 .* ones(19), 30.)
     (m, r, y, f, λ) = build_blp_model(bfp, CbcSolver(), comp_method = bounds_method)
     st = JuMP.solve(m)
     @test st === :Optimal
@@ -285,7 +285,7 @@ end
             @test getvalue(r[i,j]) ≈ sum(getvalue(y[i,j,:]).*bfp.tax_options[i,j,:]) * getvalue(f[i,j])
         end
     end
-    bounds_method = BilevelOptimization.BoundComplementarity(10., 10 .* ones(19))
+    bounds_method = BoundComplementarity(10., 10 .* ones(19))
     (m, r, y, f, λ) = build_blp_model(bfp, CbcSolver(), comp_method = bounds_method)
     st = JuMP.solve(m)
     @test st === :Optimal
@@ -299,7 +299,7 @@ end
 
 @testset "Bilevel flow big-M infeasible" begin
     bfp = test_bflow()
-    (m, r, y, f, λ) = build_blp_model(bfp, CbcSolver(), comp_method = BilevelOptimization.BoundComplementarity(0.1, 0.1))
+    (m, r, y, f, λ) = build_blp_model(bfp, CbcSolver(), comp_method = BoundComplementarity(0.1, 0.1))
     st = JuMP.solve(m)
     @test st === :Infeasible
 end
