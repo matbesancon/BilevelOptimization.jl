@@ -45,7 +45,7 @@ function build_blp_model(m::JuMP.Model, bp::BilevelLP, x, y; comp_method = SOS1C
     end
     @constraint(m, bp.d .+ bp.F' * x .+ bp.B' * λ  .- σ .== 0.0)
     add_complementarity_constraint(m, comp_method, s, λ, y, σ)
-    return (m, x, y, λ)
+    return (m, x, y, λ, s)
 end
 
 """
@@ -67,7 +67,7 @@ function build_blp_model(m::JuMP.Model, B::M, d, x, y, s, F; comp_method = SOS1C
     end
     @constraint(m, d .+ F' * x .+ B' * λ .- σ .== 0.0)
     add_complementarity_constraint(m, comp_method, s, λ, y, σ)
-    return (m, λ)
+    return (m, λ, s)
 end
 
 function build_blp_model(m::JuMP.Model, B::M, d, s; comp_method = SOS1Complementarity()) where {M<:MT}
@@ -75,5 +75,5 @@ function build_blp_model(m::JuMP.Model, B::M, d, s; comp_method = SOS1Complement
     @variable(m, λ[1:ml] >= 0)
     @constraint(m, kkt, d .+ B' * λ .== 0.0)
     add_complementarity_constraint(m, comp_method, s, λ, [], [])
-    return (m, λ)
+    return (m, λ, s)
 end

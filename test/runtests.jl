@@ -21,7 +21,7 @@ end
 
 @testset "test basic problem" begin
     bp = test_bp()
-    (m, x, y, λ) = build_blp_model(bp, CbcSolver())
+    (m, x, y, λ, _) = build_blp_model(bp, CbcSolver())
     status = JuMP.solve(m)
     @test status === :Optimal
     xv = JuMP.getvalue(x)
@@ -33,7 +33,7 @@ end
 @testset "Integrality is registered" begin
     bp = test_bp()
     push!(bp.Jx, 2) # second useless variable is integer
-    (m, x, y, λ) = build_blp_model(bp, CbcSolver())
+    (m, x, y, λ, _) = build_blp_model(bp, CbcSolver())
     @test JuMP.getcategory(x[2]) == :Int
     @test JuMP.getcategory(x[1]) == :Cont
     @test JuMP.getcategory(y[1]) == :Cont
@@ -58,7 +58,7 @@ end
         G, H, q,
         d, A, B, b
     )
-    (m, x, y, λ) = build_blp_model(prob, CbcSolver())
+    (m, x, y, λ, _) = build_blp_model(prob, CbcSolver())
     st = JuMP.solve(m)
     @test st === :Optimal
     @test getvalue(x)[1] ≈ 8.
@@ -73,7 +73,7 @@ end
         G, H, q,
         d, A, B, b
     )
-    (m, x, y, λ) = build_blp_model(prob, CbcSolver())
+    (m, x, y, λ, _) = build_blp_model(prob, CbcSolver())
     st = solve(m)
     @test st === :Optimal
     @test getvalue(x)[1] ≈ 6.
@@ -109,7 +109,7 @@ end
     setlowerbound(prob, BilevelOptimization.lower, 2, 0.)
     setupperbound(prob, BilevelOptimization.lower, 2, 2.)
     @test size(prob.B) == (prob.ml,prob.nl)
-    (m, x, y, λ) = build_blp_model(prob, CbcSolver())
+    (m, x, y, λ, _) = build_blp_model(prob, CbcSolver())
     st = JuMP.solve(m)
     @test st === :Optimal
     @test all(getvalue(x) .≈ (-1.,-1.))
@@ -146,7 +146,7 @@ end
         G, H, q,
         d, A, B, b, Jx, ylowerbound = false
     )
-    (m, x, y, λ) = build_blp_model(intprob, CbcSolver())
+    (m, x, y, λ, _) = build_blp_model(intprob, CbcSolver())
     st = JuMP.solve(m)
     @test st === :Optimal
     @test all(getvalue(x) .≈ (2.,2.))
@@ -161,7 +161,7 @@ end
         G, H, q,
         d, A, B, b, Jx
     )
-    (m, x, y, λ) = build_blp_model(intprob, CbcSolver())
+    (m, x, y, λ, _) = build_blp_model(intprob, CbcSolver())
     st = JuMP.solve(m)
     @test st === :Optimal
     @test all(getvalue(x) .≈ (2.,2.))
