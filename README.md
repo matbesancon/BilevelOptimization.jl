@@ -91,6 +91,18 @@ build_blp_model(args..., comp_method = BoundComplementarity(MD, MP))
 for one bound per variable type or an abstract vector for one bound per
 variable.
 
+### Custom method
+
+Users can create a custom method for the complementarity constraint,
+by creating a type `T <: ComplementarityMethod` (sub-typing is optional but
+helps for clarity). They also need to implement a method:
+
+```julia
+add_complementarity_constraint(m, cm::T, s, λ)
+```
+
+Within which the complementarity constraints are added to the JuMP model `m`.
+
 ## The toll-setting problem
 
 As a special application of the above model, the module `BilevelFlowProblems`
