@@ -19,6 +19,7 @@ such that
   y ∈ arg min_y {d^T y + x^T F * y
                  such that
                    A * x + B * y ⩽ b
+                   y ⩾ 0
   }
   x_j integer ∀ j ∈ Jx
 ```
@@ -29,7 +30,7 @@ on the value of `x`.
 The required data describing this problem are
 the feasibility domains of the upper and lower level and the coefficients
 of the objective functions. All these are regrouped within the `BilevelLP`
-type of this package.   
+type of this package.
 
 The formulation is made as general as possible
 for the problem to remain approachable with plain Mixed-Integer Solvers
@@ -50,10 +51,45 @@ You will also need an optimization solver up and running with [JuMP](https://git
 
 ## Resolution method
 
-`BilevelOptimization.jl` uses Special-ordered Sets of type 1 or [SOS1](https://en.wikipedia.org/wiki/Special_ordered_set) for complementarity constraints.
-This avoids the bound estimation phase which is often tricky for dual variables.
-This avoids solving sub-problems to estimate primal and dual bound and
-still allows the solver to branch on either `(λ,s)` efficiently.
+The "hard" part of the reduction of a bilevel problem is the set of
+complementarity constraints of the form:
+
+```julia
+λ ⋅ (b - Ax - By) = 0
+```
+
+These constraints cannot be handled directly, different methods have been
+developed in the literature and implemented in this package.
+The standard way is to give a different algorithm in `build_blp_model`:
+
+```julia
+build_blp_model(args..., comp_method::ComplementarityMethod = my_method)
+```
+
+
+### Special ordered sets 1
+
+Special-ordered Sets of type 1 or [SOS1](https://en.wikipedia.org/wiki/Special_ordered_set)
+are used by default for complementarity constraints.
+The option to pass is:
+
+```julia
+build_blp_model(args..., comp_method = SOS1Complementarity())
+```
+
+### Dual and primal bounds
+
+The most common technique for these constraints is the linearization of the
+constraint with a formulation developed in Fortuny-Amat and McCarl, 1981,
+using so-called big-M constraints.
+
+```julia
+build_blp_model(args..., comp_method = BoundComplementarity(MD, MP))
+```
+
+`MD`, `MP` are primal and dual bounds, both can be either a scalar
+for one bound per variable type or an abstract vector for one bound per
+variable.
 
 ## The toll-setting problem
 
@@ -71,7 +107,7 @@ This has been investigated in the literature as the "toll-setting problem".
 
 Problems with the package and its usage can be explained through Github issues,
 ideally with a minimal working example showing the problem.
-Pull requests (PR) are welcome.  
+Pull requests (PR) are welcome.
 
 Please read detailed information in **CONTRIBUTING.md**.
 
