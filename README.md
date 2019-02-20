@@ -133,7 +133,7 @@ including bilevel problems using non-linear techniques
 ## Citing
 
 ```
-@misc{bilevel19,
+@misc{besancon19,
     author = {{Mathieu Besançon}},
     title  = "BilevelOptimization.jl, a JuMP-based toolbox for bilevel optimization",
     url = {https://github.com/matbesancon/BilevelOptimization.jl},
