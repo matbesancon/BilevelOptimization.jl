@@ -50,9 +50,8 @@ A generic formulation for a bilevel problem is:
 
 ```julia
 min_x F(x,y)
-s.t.
-G_k(x,y) <= 0 for k in {1..mu}
-y in arg min_y {f(x,y)
+s.t.  G_k(x,y) <= 0 for k in {1..mu}
+      y in arg min_y {f(x,y)
                s.t.
                g_i(x,y) <= 0 for i in {1..ml}
               }
@@ -74,27 +73,24 @@ easily reformulated problems.
 This package is initially designed for a restricted form:
 ```julia
 min_x cx^T x + cy^T y
-s.t.
-G x + H y <= q
-x >= 0
-x[j] integer for j in Jx
-y in arg min_y {d^T y + x^T F y
-               s.t.
-               A x + B y <= b
-               y >= 0
-              }
+s.t. G x + H y <= q
+     x >= 0
+     x[j] integer for j in Jx
+     y in arg min_y {d^T y + x^T F y
+           s.t. A x + B y <= b
+                y >= 0
+                }
 ```
 
 The single-level reduction of the optimistic version of this problem is:
 ```julia
 min_{x,y,lambda} cx^T x + cy^T y
-s.t.
-G x + H y <= q
-A x + B y <= b
-x, y >= 0
-x[j] integer for j in Jx
-d + F^T x + B^T * lambda = 0
-lambda[i] * (b - A x - B y)[i] = 0 for i in {1..ml}
+s.t. G x + H y <= q
+     A x + B y <= b
+     x, y >= 0
+     x[j] integer for j in Jx
+     d + F^T x + B^T * lambda = 0
+     lambda[i] * (b - A x - B y)[i] = 0 for i in {1..ml}
 ```
 
 The last equation is a complementarity constraint, corresponding
@@ -122,13 +118,12 @@ to tackle complementarity constraints. The two methods mentioned in the previous
 section are represented as types, `SOS1Complementarity` and `BoundComplementarity`.
 For the second option, primal and dual bounds can either be scalars or vectors
 to use bounds adapted to each constraint.
-
 Some problem-specific methods are often used in the literature to handle
 complementarity constraints in an efficient way. Users of the package can
 define a new type, optionally sub-typed from `ComplementarityMethod`,
 and define the following function:
 ```
-add_complementarity_constraint(m, cm::CM, s, λ, y, σ)
+add_complementarity_constraint(m, cm::CM, s, lambda, y, sigma)
 ```
 
 Where CM is the complementarity constraint type.
