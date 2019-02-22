@@ -34,7 +34,7 @@ modeling package [@dunning2017jump].
 Bilevel optimization is used to tackle various problems in areas such as
 power systems, security applications, network design or market equilibria.
 See [@dempe2018bilevel] for an overview of applications and recent
-formulations and theoretical progress.  
+formulations and theoretical progress.
 
 The computation of an optimal solution to a bilevel problem is in general hard.
 Even with all the constraints and the objectives at the two level being linear,
@@ -42,7 +42,7 @@ the resulting problem is non-convex and NP-hard, with possibly a disjoint
 feasible set. Optimization practitioners often rely on problem-specific
 properties and modeling techniques or heuristics, the goal of this package
 is to offer a both flexible model of a general class of bilevel problems
-and a solving method which is compatible with the JuMP workflow.    
+and a solving method which is compatible with the JuMP workflow.
 
 # Bilevel optimization
 
@@ -61,7 +61,7 @@ y in arg min_y {f(x,y)
 If the lower-level problem is convex, i.e. if the functions $f(x,y)$ and
 $g_i(x,\cdot)$ are convex and if Slater's qualification constraints hold,
 the Karush-Kuhn-Tucker conditions can be used to characterize the optimality
-at the lower-level.  
+at the lower-level.
 
 For most lower-level problems, there are several optimal solutions
 (different solutions yielding the same optimal value of the objective).
@@ -69,7 +69,7 @@ Several methodologies have been developed for such case, the two principal
 being the optimistic and pessimistic bilevel formulations, turning the
 set-valued problem into a regular one. The approach used for now in
 BilevelOptimization.jl is the optimistic one, allowing for more
-easily reformulated problems.  
+easily reformulated problems.
 
 This package is initially designed for a restricted form:
 ```julia
@@ -100,25 +100,28 @@ lambda[i] * (b - A x - B y)[i] = 0 for i in {1..ml}
 The last equation is a complementarity constraint, corresponding
 to the fact that at least one of $(\lambda_i, s_i)$ has to be equal
 to zero. This non-convex, non-linear constraint cannot be tackled
-efficiently by common optimization solvers and needs to be linearized.
+efficiently by common optimization solvers and needs to be re-formulated.
 The two common approaches are linearization using a binary variable and
 "big-M" primal and dual upper bounds [@pineda19] and Special Ordered Sets
-of type 1 (SOS1). Due to their greater flexibility, the latter option is used
-in BilevelOptimization.jl, thus not requiring users to provide additional
-parameters. A special ordered set 1 is a group of two or more variables,
+of type 1 (SOS1).
+A special ordered set 1 is a group of two or more variables,
 of which at most one can be non-zero. Mixed-Integer Linear solvers use this
 information for branching directly on the two variables.
-JuMP supports the modeling of Special Ordered Sets 1 with the following syntax:
+In the case of the bilevel problem presented above, the sets contain the slack
+variable and dual variable associated with each lower-level constraint,
+forcing at least one of them to 0.
 
-```julia
-for i in 1:ml
-    JuMP.addSOS1(m, [lambda[i], s[i]])
-end
-```
+# Types and methods for bilevel optimization
 
-and passes on the information to the solver. In the case of the bilevel
-problem presented above, the sets contain the slack variable and dual variable
-associated with each lower-level constraint, forcing at least one of them to 0.  
+The data for a bilevel linear problems are stored in the `BilevelLP` structure,
+with the same notation as used above. A JuMP `Model` can be built from scratch
+from these data or passed on to the `build_blp_model` function which adds the
+lower-level feasibility and optimality constraints. The signature of this
+function includes a keyword argument `comp_method` for the choice of method
+to tackle complementarity constraints. The two methods mentioned in the previous
+section are represented as types, `SOS1Complementarity` and `BoundComplementarity`.
+For the second option, primal and dual bounds can either be scalars or vectors
+to use bounds adapted to each constraint.
 
 # Application to toll-setting problems
 
@@ -126,7 +129,7 @@ The toll-setting problem is a class of bilevel optimization where the two
 levels of decision are taken on a graph [@brotcorne2001bilevel].
 It belongs to the more general framework of network pricing problems with
 applications in road management [@harks2018toll] or telecommunication
-network reliability [@Hayrapetyan2007].  
+network reliability [@Hayrapetyan2007].
 
 In this problem, the upper level decides on a toll to apply on some arcs
 of a directed graph. Each arc has an initial cost, the lower-level then
