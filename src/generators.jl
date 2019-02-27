@@ -6,6 +6,10 @@ import ..BilevelLP
 
 export UniformBilevelGenerator
 
+"""
+Size and bound specifications for generating random `BilevelLP` instances
+Each bound is stored in a tuple `(lower, upper)`
+"""
 struct UniformBilevelGenerator
     ml::Int
     mu::Int
@@ -22,21 +26,28 @@ struct UniformBilevelGenerator
     b_bounds::Tuple{Float64,Float64}
 end
 
+"""
+Default constructor only specifies sizes for each element of the problem and
+the same lower and upper bounds for each of them, passed as keyword arguments `lb` and `ub`
+"""
 function UniformBilevelGenerator(ml,mu,nl,nu; lb = 0., ub = 1.)
     UniformBilevelGenerator(ml,mu,nl,nu, (lb,ub),(lb,ub),(lb,ub),(lb,ub),(lb,ub),(lb,ub),(lb,ub),(lb,ub),(lb,ub))
 end
 
+"""
+Generate a new random instance from a `UniformBilevelGenerator`
+"""
 function Base.rand(rng::Random.AbstractRNG, ubg::UniformBilevelGenerator)
     BilevelLP(
-        rand(Uniform(ubg.cx_bounds...), ubg.nu),
-        rand(Uniform(ubg.cy_bounds...), ubg.nl),
-        rand(Uniform(ubg.G_bounds...), ubg.mu, ubg.nu),
-        rand(Uniform(ubg.H_bounds...), ubg.mu, ubg.nl),
-        rand(Uniform(ubg.q_bounds...), ubg.mu),
-        rand(Uniform(ubg.d_bounds...), ubg.nl),
-        rand(Uniform(ubg.A_bounds...), ubg.ml, ubg.nu),
-        rand(Uniform(ubg.B_bounds...), ubg.ml, ubg.nl),
-        rand(Uniform(ubg.b_bounds...), ubg.ml)
+        rand(rng, Uniform(ubg.cx_bounds...), ubg.nu),
+        rand(rng, Uniform(ubg.cy_bounds...), ubg.nl),
+        rand(rng, Uniform(ubg.G_bounds...), ubg.mu, ubg.nu),
+        rand(rng, Uniform(ubg.H_bounds...), ubg.mu, ubg.nl),
+        rand(rng, Uniform(ubg.q_bounds...), ubg.mu),
+        rand(rng, Uniform(ubg.d_bounds...), ubg.nl),
+        rand(rng, Uniform(ubg.A_bounds...), ubg.ml, ubg.nu),
+        rand(rng, Uniform(ubg.B_bounds...), ubg.ml, ubg.nl),
+        rand(rng, Uniform(ubg.b_bounds...), ubg.ml)
     )
 end
 
