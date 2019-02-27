@@ -44,10 +44,18 @@ as long as JuMP and the solver used support the constraints and objective.
 The package can be installed using Julia `Pkg` tool:
 ```julia
 julia> ]
-(v1.0) pkg> add https://github.com/matbesancon/BilevelOptimization.jl
+(v1.0) pkg> add BilevelOptimization
 ```
 
 You will also need an optimization solver up and running with [JuMP](https://github.com/juliaopt/JuMP.jl).
+
+## Testing
+
+Tests can be performed using `Pkg`:
+```julia
+julia> ]
+(v1.0) pkg> test BilevelOptimization
+```
 
 ## Resolution method
 
