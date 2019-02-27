@@ -10,5 +10,6 @@ include("types.jl")
 include("complementarity.jl")
 include("build_model.jl")
 include("bilevel_flows.jl")
+include("generators.jl")
 
 end # module

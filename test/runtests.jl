@@ -1,9 +1,11 @@
 using BilevelOptimization
 using BilevelOptimization.BilevelFlowProblems
+using BilevelOptimization.BilevelGenerators
 
 using Test
-import LinearAlgebra
 
+import LinearAlgebra
+import Random
 using Cbc: CbcSolver
 using JuMP
 
@@ -302,4 +304,39 @@ end
     (m, r, y, f, λ) = build_blp_model(bfp, CbcSolver(), comp_method = BoundComplementarity(0.1, 0.1))
     st = JuMP.solve(m)
     @test st === :Infeasible
+end
+
+@testset "Dimensions respected" begin
+    ml = 3
+    mu = 5
+    nu = 10
+    nl = 7
+    ubg = UniformBilevelGenerator(ml,mu,nl,nu, lb = -10., ub = 10.)
+    bp = rand(ubg)
+    @test length(bp.cx) == nu
+    @test length(bp.cy) == nl
+    @test size(bp.G) == (mu,nu)
+    @test size(bp.H) == (mu,nl)
+    @test length(bp.q) == mu
+    @test length(bp.d) == nl
+    @test size(bp.A) == (ml,nu)
+    @test size(bp.B) == (ml,nl)
+    @test length(bp.b) == ml
+end
+
+@testset "Bounds respected" begin
+    ml = 3
+    mu = 5
+    nu = 10
+    nl = 7
+    (lb, ub) = (-10., 10.)
+    ubg = UniformBilevelGenerator(ml,mu,nl,nu, lb = lb, ub = ub)
+    mt = Random.MersenneTwister(3)
+    for _ in 1:1000
+        bp = rand(mt, ubg)
+        for v in (bp.cx,bp.cy,bp.G,bp.H,bp.q,bp.d,bp.A,bp.B,bp.b)
+            @test minimum(v) >= lb
+            @test maximum(v) <= ub
+        end
+    end
 end
