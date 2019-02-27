@@ -49,6 +49,24 @@ julia> ]
 
 You will also need an optimization solver up and running with [JuMP](https://github.com/juliaopt/JuMP.jl).
 
+## Testing
+The tests require the [cbc solver](https://projects.coin-or.org/Cbc) installed on the system, along with its corresponding `julia` package.
+
+```bash
+# Grab the tests (after the cbc solver is installed)
+mkdir bilvlopt_test && cd bilvlopt_test
+wget https://github.com/matbesancon/BilevelOptimization.jl/raw/master/test/runtests.jl
+julia
+```
+```julia
+julia> import Pkg; Pkg.add("Cbc")
+julia> exit()
+```
+```bash
+# In the same folder (bilvlopt_test)
+julia runtests.jl
+```
+
 ## Resolution method
 
 The "hard" part of the reduction of a bilevel problem is the set of
