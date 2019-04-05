@@ -39,6 +39,32 @@ the user can set `Jx = ∅` and `F` as a zero matrix of appropriate dimension.
 The problem can be made as complex as wanted **at the upper level**,
 as long as JuMP and the solver used support the constraints and objective.
 
+### Usage:
+
+The main function is `build_bilevel_lp`, which will build the JuMP model
+or modify it for the bilevel problem.
+
+The signature:  
+`build_blp_model(bp::BilevelOptimization.BilevelLP, solver; comp_method)`
+builds the model from scratch. It will return a `Tuple`: `(m, x, y, λ, s)` with:
+- `m` the JuMP model
+- `x` the upper-level variable vector
+- `y` the lower-level variable vector
+- `λ` the dual of the lower-level problem
+- `s` the lower-level slack variable vector
+
+The function can also be called with a model already built:  
+`build_blp_model(m::JuMP.Model, bp::BilevelOptimization.BilevelLP, x, y; comp_method)`
+In which case it will add the lower-level optimality constraints, it returns the same tuple.
+
+If the user is not willing to describe the whole problem using a `BilevelLP`,
+the following signature can be used:
+`build_blp_model(m::JuMP.Model, B::M, d, s; comp_method)`
+
+With `B` the lower-level constraint matrix, d the lower-level objective and `s` the lower-level
+slack variable. Only the KKT conditions are added to the model in that case (not the lower-level
+feasibility constraints).
+
 ## Installation
 
 The package can be installed using Julia `Pkg` tool:
@@ -55,6 +81,30 @@ Tests can be performed using `Pkg`:
 ```julia
 julia> ]
 (v1.0) pkg> test BilevelOptimization
+```
+
+## API documentation
+
+From the Julia REPL, type `?` to show the help prompt, then type the
+identifier you want the documentation for.
+
+```julia
+julia> import BilevelOptimization
+
+help?> BilevelOptimization.BilevelLP
+  A bilevel linear optimization problem of the form:
+
+  min cx^T * x + cy^T * y
+  s.t. G x + H y <= q
+       x_j ∈ [xl_j,xu_j]
+       x_j ∈ ℤ ∀ j ∈ Jx
+       y ∈ arg min {
+          d^T * y + x^T * F * y
+          s.t. A x + B y <= b
+               y_j ∈ [yl_j,yu_j]
+          }
+
+  Note that integer variables are allowed at the upper level. 
 ```
 
 ## Resolution method
@@ -122,6 +172,57 @@ a given minimum amount from the source to the sink.
 * Each arc has an invariant base cost and a tax level decided upon by the leader.
 
 This has been investigated in the literature as the "toll-setting problem".
+The required data include:
+- the initial cost of each arc for all `i,j`
+- which edges can be taxed by the leader for all `i,j`
+- the tax options (at which level can each edge be taxed) for all `i,j,k`
+- flow capacities of each edge
+- the minimum flow the follower has to pass from source to sink
+
+### Example:
+
+```julia
+init_cost = [
+	0. 1. 1. 4.
+	0. 0. 0. 1.
+	0. 0. 0. 1.
+	0. 0. 0. 0.
+]
+taxable_edges = [
+	false true true false
+	false false false true
+	false false false true
+	false false false false
+]
+tax_options = zeros(4,4,5)
+for i in 1:4, j in 1:4
+	if taxable_edges[i,j]
+    	tax_options[i,j,:] .= (0.0, 0.5, 1.0, 1.5, 2.0)
+    end
+end
+
+capacities = [
+	0. 3. 2. 3.
+    0. 0. 0. 2.
+    0. 0. 0. 1.
+    0. 0. 0. 0.
+]
+
+minflow = 3.
+
+BilevelFlowProblem(init_cost,taxable_edges,capacities,tax_options, minflow)
+
+(m, r, y, f, λ) = build_blp_model(bfp, CbcSolver())
+st = JuMP.solve(m)
+
+# st === :Optimal
+# getobjectivevalue(m) ≈ 6.
+#     for j in 1:size(r)[2]
+#        for i in 1:size(r)[1]
+#            @test getvalue(r[i,j]) ≈ sum(getvalue(y[i,j,:]).*bfp.tax_options[i,j,:]) * getvalue(f[i,j])
+#        end
+#    end
+```
 
 ## Questions, issues, contributions
 
@@ -143,11 +244,9 @@ including bilevel problems using non-linear techniques
 ```
 @misc{besancon19,
     author = {{Mathieu Besançon}},
-    title  = "BilevelOptimization.jl, a JuMP-based toolbox for bilevel optimization",
+    title  = "BilevelOptimization.jl, a JuMP-based solver for linear bilevel optimization",
     url = {https://github.com/matbesancon/BilevelOptimization.jl},
-    version = {0.1},
+    version = {0.2},
     year = {2019}
 }
 ```
-
-A software paper may be written.
