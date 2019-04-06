@@ -1,7 +1,12 @@
 
 """
-Build a JuMP model (constraints and objective)
-based on the data from bp and with a solver.
+    `build_blp_model(bp::BilevelLP, solver; [comp_method])`
+
+Build a JuMP model (constraints and objective) based
+on the data from bp and with a solver.
+
+Returns a tuple `(m, x, y, λ, s)`.
+
 An optional keyword `comp_method` can be passed for
 handling complementarity constraints, default is `SOS1Complementarity`.
 """
@@ -21,9 +26,14 @@ function build_blp_model(bp::BilevelLP, solver; comp_method = SOS1Complementarit
 end
 
 """
-Add the lower-level constraints and optimality conditions to
+    `build_blp_model(m::JuMP.Model, bp::BilevelLP, x, y; [comp_method])`
+
+Adds the lower-level constraints and optimality conditions to
 an existing JuMP model. This assumes the upper-level feasibility
 constraints and objective have already been set.
+
+Returns a tuple `(m, x, y, λ, s)`.
+
 An optional keyword `comp_method` can be passed for
 handling complementarity constraints, default is `SOS1Complementarity`.
 """
@@ -49,6 +59,8 @@ function build_blp_model(m::JuMP.Model, bp::BilevelLP, x, y; comp_method = SOS1C
 end
 
 """
+    `build_blp_model(m, B, d, x, y, s, F; [comp_method])`
+
 Build the bilevel JuMP model from the data without
 grouping everything into a `BilevelLP`.
 An optional keyword `comp_method` can be passed for
