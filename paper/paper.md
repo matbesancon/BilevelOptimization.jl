@@ -30,7 +30,7 @@ a set of constraints on the decision.
 Bilevel optimization is a class of mathematical optimization problems
 with the optimality conditions of a lower-level problem embedded in the
 constraints. BilevelOptimization.jl is a toolbox built on top of the JuMP.jl
-modeling package [@dunning2017jump].
+ecosystem for mathematical optimization [@dunning2017jump].
 Bilevel optimization is used to tackle various problems in areas such as
 power systems, security applications, network design or market equilibria.
 See [@dempe2018bilevel] for an overview of applications and recent
@@ -40,8 +40,8 @@ The computation of an optimal solution to a bilevel problem is in general hard.
 Even with all the constraints and the objectives at the two level being linear,
 the resulting problem is non-convex and NP-hard, with possibly a disjoint
 feasible set. Optimization practitioners often rely on problem-specific
-properties and modeling techniques or heuristics, the goal of this package
-is to offer a both flexible model of a general class of bilevel problems
+properties and modeling techniques or heuristics. The goal of this package
+is to offer both a flexible model for a general class of bilevel problems
 and a solving method which is compatible with the JuMP workflow.
 
 # Bilevel optimization
@@ -130,7 +130,7 @@ It returns a tuple `(m, x, y, lambda, s)` with:
 Other signatures allow users to modify an already-existing JuMP model
 without storing every constraint or variable into a `BilevelLP` structure.
 
-All signatures of the  `build_blp_model` function include a keyword argument
+All signatures of the `build_blp_model` function include a keyword argument
 `comp_method` for the choice of method to tackle complementarity constraints.
 The two methods mentioned in the previous section are represented as types,
 `SOS1Complementarity` and `BoundComplementarity`.
@@ -177,15 +177,17 @@ build_blp_model(bfp::BilevelFlowProblem, solver; [comp_method])
 
 # More general problem formulations
 
-Even though BilevelOptimization.jl is designed initially for linear-linear
-bilevel problems, the design allows users to bypass the upper-level problem
-specification by providing a `JuMP.Model` with the upper-level objective
-and constraints already set, for instance for quadratic or conic upper level
-formulations. The only requirement is that the solver must support
-the type of constraints specified and special ordered sets 1.
+Even though BilevelOptimization.jl is thought for linear-linear
+bilevel problems which can be described by the `BilevelLP` type,
+the design allows users to bypass the upper-level problem
+specification. They can provide a pre-built `JuMP.Model` with the upper-level
+objective and constraints already set, for instance for quadratic or conic upper level
+formulations. The only requirement is that the solver must support both
+the type of constraints specified in the model and in the `comp_method`.
 This flexibility allows users to leverage some recent advances on
 mixed-integer convex optimization and solvers tackling these problems
 [@LubinYamangilBentVielma2016]. As of the current state of BilevelOptimization.jl,
-the only restricted part of the model is the linear-quadratic lower-level.
+the only restricted part of the model is the linear-quadratic lower-level, which
+is required to exploit Karush-Kuhn-Tucker conditions.
 
 # References
