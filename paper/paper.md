@@ -110,7 +110,7 @@ forcing at least one of them to 0.
 # Types and methods for bilevel optimization
 
 The data for a bilevel linear problems are stored in the `BilevelLP` structure,
-with the same notation as used above. A JuMP `Model` can be built from scratch
+with the same notation as used above. A `JuMP.Model` can be built from scratch
 from these data or passed on to the `build_blp_model` function which adds the
 lower-level feasibility and optimality constraints. This function supports different
 signatures through multiple dispatch. To build the model from scratch using
@@ -179,7 +179,7 @@ build_blp_model(bfp::BilevelFlowProblem, solver; [comp_method])
 
 Even though BilevelOptimization.jl is designed initially for linear-linear
 bilevel problems, the design allows users to bypass the upper-level problem
-specification by providing a JuMP `Model` with the upper-level objective
+specification by providing a `JuMP.Model` with the upper-level objective
 and constraints already set, for instance for quadratic or conic upper level
 formulations. The only requirement is that the solver must support
 the type of constraints specified and special ordered sets 1.
