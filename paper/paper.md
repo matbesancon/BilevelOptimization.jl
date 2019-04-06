@@ -120,6 +120,7 @@ build_blp_model(bp::BilevelLP, solver; [comp_method])
 ```
 
 It returns a tuple `(m, x, y, lambda, s)` with:
+
 - `m` the JuMP model
 - `x` the upper-level vector of variables
 - `y` the lower-level vector of variables
@@ -161,6 +162,7 @@ presented above, a composite type holding all required data is defined
 in the package, allowing users to bypass the re-formulation of the model
 from its algebraic JuMP form to a standard form. Users can describe their
 problem using the `BilevelFlowProblem` struct containing:
+
 - The initial matrix of arc costs `init_cost`
 - A boolean matrix indicating which edges are taxable `taxable_edges`
 - The capacity matrix `capacities`
