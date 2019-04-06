@@ -95,7 +95,8 @@ s.t. G x + H y <= q
 
 The last equation is a complementarity constraint, corresponding
 to the fact that at least one of $(\lambda_i, s_i)$ has to be equal
-to zero. This non-convex, non-linear constraint cannot be tackled
+to zero, where $s_i$ is the slack variable associated with constraint $i$.
+This non-convex, non-linear constraint cannot be tackled
 efficiently by common optimization solvers and needs to be re-formulated.
 The two common approaches are linearization using a binary variable and
 "big-M" primal and dual upper bounds [@pineda19] and Special Ordered Sets
