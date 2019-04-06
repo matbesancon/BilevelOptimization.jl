@@ -32,7 +32,7 @@ function add_complementarity_constraint end
 
 """
 Implements complementarity constraints using special ordered sets 1
-Called with either
+Called with either:
 ```
 add_complementarity_constraint(m, SOS1Complementarity, s, λ, y, σ)
 add_complementarity_constraint(m, SOS1Complementarity(), s, λ, y, σ)

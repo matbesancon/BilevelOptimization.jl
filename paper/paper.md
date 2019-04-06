@@ -112,10 +112,27 @@ forcing at least one of them to 0.
 The data for a bilevel linear problems are stored in the `BilevelLP` structure,
 with the same notation as used above. A JuMP `Model` can be built from scratch
 from these data or passed on to the `build_blp_model` function which adds the
-lower-level feasibility and optimality constraints. The signature of this
-function includes a keyword argument `comp_method` for the choice of method
-to tackle complementarity constraints. The two methods mentioned in the previous
-section are represented as types, `SOS1Complementarity` and `BoundComplementarity`.
+lower-level feasibility and optimality constraints. This function supports different
+signatures through multiple dispatch. To build the model from scratch using
+the data from `BilevelLP`, the function is called as follows:
+```julia
+build_blp_model(bp::BilevelLP, solver; [comp_method])
+```
+
+It returns a tuple `(m, x, y, lambda, s)` with:
+- `m` the JuMP model
+- `x` the upper-level vector of variables
+- `y` the lower-level vector of variables
+- `lambda` the lower-level dual variables
+- `s` the lower-level slack variables
+
+Other signatures allow users to modify an already-existing JuMP model
+without storing every constraint or variable into a `BilevelLP` structure.
+
+All signatures of the  `build_blp_model` function include a keyword argument
+`comp_method` for the choice of method to tackle complementarity constraints.
+The two methods mentioned in the previous section are represented as types,
+`SOS1Complementarity` and `BoundComplementarity`.
 For the second option, primal and dual bounds can either be scalars or vectors
 to use bounds adapted to each constraint.
 Some problem-specific methods are often used in the literature to handle
@@ -134,7 +151,7 @@ The toll-setting problem is a class of bilevel optimization where the two
 levels of decision are taken on a graph [@brotcorne2001bilevel].
 It belongs to the more general framework of network pricing problems with
 applications in road management [@harks2018toll] or telecommunication
-network reliability [@Hayrapetyan2007].
+network reliability [@Hayrapetyan2007].  
 
 In this problem, the upper level decides on a toll to apply on some arcs
 of a directed graph. Each arc has an initial cost, the lower-level then
@@ -142,7 +159,13 @@ finds the minimum-cost flow from a source to a sink with a minimum circulating
 flow. This problem can entirely be modeled using the framework
 presented above, a composite type holding all required data is defined
 in the package, allowing users to bypass the re-formulation of the model
-from its algebraic JuMP form to a standard form.
+from its algebraic JuMP form to a standard form. Users can describe their
+problem using the `BilevelFlowProblem` struct containing:
+- The initial matrix of arc costs `init_cost`
+- A boolean matrix indicating which edges are taxable `taxable_edges`
+- The capacity matrix `capacities`
+- The different levels of tax that can be applied to each arc `tax_options`
+- The minimum amount of flow that the follower needs to pass from source to sink `minflow`
 
 # More general problem formulations
 
