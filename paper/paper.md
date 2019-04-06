@@ -169,6 +169,12 @@ problem using the `BilevelFlowProblem` struct containing:
 - The different levels of tax that can be applied to each arc `tax_options`
 - The minimum amount of flow that the follower needs to pass from source to sink `minflow`
 
+Building the `JuMP.Model` is done similarly to the generic bilevel problem,
+using the following signature:
+```julia
+build_blp_model(bfp::BilevelFlowProblem, solver; [comp_method])
+```
+
 # More general problem formulations
 
 Even though BilevelOptimization.jl is designed initially for linear-linear
