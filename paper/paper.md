@@ -37,12 +37,12 @@ See [@dempe2018bilevel] for an overview of applications and recent
 formulations and theoretical progress.
 
 The computation of an optimal solution to a bilevel problem is in general hard.
-Even with all the constraints and the objectives at the two level being linear,
-the resulting problem is non-convex and NP-hard, with possibly a disjoint
+Even with all the constraints and the objectives at the two levels being linear,
+the resulting problem is non-convex and NP-hard, with a possibly disjoint
 feasible set. Optimization practitioners often rely on problem-specific
 properties and modeling techniques or heuristics, the goal of this package
 is to offer a both flexible model of a general class of bilevel problems
-and a solving method which is compatible with the JuMP workflow.
+and a solver which is compatible with the JuMP workflow.
 
 # Bilevel optimization
 
@@ -64,13 +64,12 @@ at the lower-level.
 
 For most lower-level problems, there are several optimal solutions
 (different solutions yielding the same optimal value of the objective).
-Several methodologies have been developed for such case, the two principal
-being the optimistic and pessimistic bilevel formulations, turning the
-set-valued problem into a regular one. The approach used for now in
-BilevelOptimization.jl is the optimistic one, allowing for more
-easily reformulated problems.
+Several methodologies have been developed for such case, the two primary
+approaches being the optimistic and pessimistic bilevel formulations [@dempe2018bilevel],
+regularizing the set-valued problem by guaranteeing the uniqueness of the lower-level solution.
+The approach used in *BilevelOptimization.jl* is the optimistic one.
 
-This package is initially designed for a restricted form:
+This package is initially designed for a problem of the form:
 ```julia
 min_x cx^T x + cy^T y
 s.t. G x + H y <= q
@@ -98,8 +97,8 @@ to the fact that at least one of $(\lambda_i, s_i)$ has to be equal
 to zero. This non-convex, non-linear constraint cannot be tackled
 efficiently by common optimization solvers and needs to be re-formulated.
 The two common approaches are linearization using a binary variable and
-"big-M" primal and dual upper bounds [@pineda19] and Special Ordered Sets
-of type 1 (SOS1).
+"big-M" primal and dual upper bounds and Special Ordered Sets
+of type 1 (SOS1) [@pineda19].
 A special ordered set 1 is a group of two or more variables,
 of which at most one can be non-zero. Mixed-Integer Linear solvers use this
 information for branching directly on the two variables.
@@ -126,7 +125,7 @@ and define the following function:
 add_complementarity_constraint(m, cm::CM, s, lambda, y, sigma)
 ```
 
-Where CM is the complementarity constraint type.
+where CM is the complementarity constraint type.
 
 # Application to toll-setting problems
 
@@ -137,17 +136,17 @@ applications in road management [@harks2018toll] or telecommunication
 network reliability [@Hayrapetyan2007].
 
 In this problem, the upper level decides on a toll to apply on some arcs
-of a directed graph. Each arc has an initial cost, the lower-level then
-finds the minimum-cost flow from a source to a sink with a minimum circulating
-flow. This problem can entirely be modeled using the framework
-presented above, a composite type holding all required data is defined
-in the package, allowing users to bypass the re-formulation of the model
+of a directed graph. Each arc has an initial cost, and the lower-level problem
+consists in finding the minimum-cost flow from a source to a sink with a minimum circulating
+flow. This problem can be entirely modeled using the framework
+presented above, using a composite datatype defined in the package for holding all required data,
+allowing users to bypass the re-formulation of the model
 from its algebraic JuMP form to a standard form.
 
 # More general problem formulations
 
-Even though BilevelOptimization.jl is designed initially for linear-linear
-bilevel problems, the design allows users to bypass the upper-level problem
+Even though BilevelOptimization.jl is typically designed for linear-linear
+bilevel problems, the interface allows users to bypass the upper-level problem
 specification by providing a JuMP `Model` with the upper-level objective
 and constraints already set, for instance for quadratic or conic upper level
 formulations. The only requirement is that the solver must support
@@ -155,6 +154,6 @@ the type of constraints specified and special ordered sets 1.
 This flexibility allows users to leverage some recent advances on
 mixed-integer convex optimization and solvers tackling these problems
 [@LubinYamangilBentVielma2016]. As of the current state of BilevelOptimization.jl,
-the only restricted part of the model is the linear-quadratic lower-level.
+the only restricted part of the model is the linear-quadratic lower-level of the form $x^T F y$.
 
 # References
