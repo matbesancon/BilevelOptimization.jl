@@ -235,7 +235,7 @@ Please read detailed information in **CONTRIBUTING.md**.
 
 ## Related packages
 
-* [Complementarity.jl](https://github.com/chkwon/Complementarity.jl solving a generic class
+* [Complementarity.jl](https://github.com/chkwon/Complementarity.jl) solving a generic class
 including bilevel problems using non-linear techniques
 * [MibS](https://github.com/coin-or/MibS) for problems where the lower-level also includes integer variables. KKT conditions can therefore not be used and other branching and cutting plane techniques are leveraged.
 * [YALMIP](https://yalmip.github.io/tutorial/bilevelprogramming/) includes a bilevel solver and offers roughly the same features (and a bit more) as BilevelOptimization.jl
