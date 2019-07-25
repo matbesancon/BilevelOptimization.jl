@@ -243,8 +243,4 @@ including bilevel problems using non-linear techniques
 
 ## Citing
 
-<<<<<<< HEAD
-See *CITATION.bib*, prefer citing the JOSS entry.
-=======
-See *CITATION.bib*
->>>>>>> master
+See *CITATION.bib*, prefer citing the paper published in the Journal of Open-Source Software.
