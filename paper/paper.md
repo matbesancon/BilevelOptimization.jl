@@ -33,7 +33,7 @@ constraints. BilevelOptimization.jl is a toolbox built on top of the JuMP.jl
 ecosystem for mathematical optimization [@dunning2017jump].
 Bilevel optimization is used to tackle various problems in areas such as
 power systems, security applications, network design or market equilibria.
-See [@dempe2018bilevel] for an overview of applications and recent
+See @dempe2018bilevel for an overview of applications and recent
 formulations and theoretical progress.
 
 The computation of an optimal solution to a bilevel problem is in general hard.
@@ -57,7 +57,7 @@ s.t.  G_k(x,y) <= 0 for k in {1..mu}
               }
 ```
 
-If the lower-level problem is convex, i.e. if the functions $f(x,y)$ and
+If the lower-level problem is convex, i.e., if the functions $f(x,y)$ and
 $g_i(x,\cdot)$ are convex and if Slater's qualification constraints hold,
 the Karush-Kuhn-Tucker conditions can be used to characterize the optimality
 at the lower-level.
