@@ -4,6 +4,7 @@
 [![codecov.io](http://codecov.io/github/matbesancon/BilevelOptimization.jl/coverage.svg?branch=master)](http://codecov.io/github/matbesancon/BilevelOptimization.jl?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/matbesancon/BilevelOptimization.jl/badge.svg?branch=master)](https://coveralls.io/github/matbesancon/BilevelOptimization.jl?branch=master)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3249187.svg)](https://doi.org/10.5281/zenodo.3249187)
+[![DOI](http://joss.theoj.org/papers/10.21105/joss.01278/status.svg)](https://doi.org/10.21105/joss.01278)
 
 This package is a Julia toolbox based on JuMP.jl for solving
 [bilevel optimization problems](https://en.wikipedia.org/wiki/Bilevel_optimization).
@@ -242,4 +243,4 @@ including bilevel problems using non-linear techniques
 
 ## Citing
 
-See *CITATION.bib*
+See *CITATION.bib*, prefer citing the paper published in the Journal of Open-Source Software.
