@@ -1,7 +1,8 @@
 module BilevelOptimization
 
 import JuMP
-using JuMP: @variable, @constraint, @objective
+using JuMP: @variable, @constraint, @objective, MOI
+using LinearAlgebra: dot
 
 export BilevelLP, build_blp_model, BilevelFlowProblems, VariableType,
        SOS1Complementarity, BoundComplementarity

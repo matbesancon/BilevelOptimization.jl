@@ -17,7 +17,7 @@ struct BoundComplementarity{MD,MP} <: ComplementarityMethod
     Md::MD
     Mp::MP
     function BoundComplementarity(md::MD, mp::MP) where {MD <: Union{AbstractVector,Real}, MP <: Union{AbstractVector,Real}}
-        new{MD,MP}(md,mp)
+        return new{MD,MP}(md,mp)
     end
 end
 
@@ -31,20 +31,13 @@ add_complementarity_constraint(m, cm::ComplementarityMethod, s, λ, y, σ)
 function add_complementarity_constraint end
 
 """
-Implements complementarity constraints using special ordered sets 1
-Called with either:
-```
-add_complementarity_constraint(m, SOS1Complementarity, s, λ, y, σ)
-add_complementarity_constraint(m, SOS1Complementarity(), s, λ, y, σ)
-```
+    add_complementarity_constraint(m, ::SOS1Complementarity, s, λ, y, σ)
+
+Implements complementarity constraints using special ordered sets 1 (SOS1).
 """
-function add_complementarity_constraint(m, ::S, s, λ, y, σ) where {S <: Union{SOS1Complementarity,Type{SOS1Complementarity}}}
-    for i in eachindex(s)
-        JuMP.addSOS1(m, [λ[i], s[i]])
-    end
-    for j in eachindex(y)
-        JuMP.addSOS1(m, [σ[j], y[j]])
-    end
+function add_complementarity_constraint(m, ::SOS1Complementarity, s, λ, y, σ)
+    @constraint(m, rhs_sos_constraints[i=eachindex(s)], [λ[i], s[i]] in MOI.SOS1([0.4, 0.6]))
+    @constraint(m, nonnegative_sos_constraints[j=eachindex(y)], [σ[j], y[j]] in MOI.SOS1([0.4, 0.6]))
     return nothing
 end
 
@@ -77,7 +70,7 @@ function add_bigm_primalbounds(m, bc::BoundComplementarity{MD,MP}, active_constr
     @constraint(m, [i=1:ml],
         s[i] <= bc.Mp[i] * (1. - active_constraint[i])
     )
-    @constraint(m, [j=1:length(y)],
+    @constraint(m, [j=eachindex(y)],
         y[j] <= bc.Mp[j+ml] * (1. - variable_bound[j])
     )
     return nothing
@@ -87,10 +80,10 @@ end
 Add primal bounds with the same bound for all elements
 """
 function add_bigm_primalbounds(m, bc::BoundComplementarity{MD,MP}, active_constraint, variable_bound, s, y) where {MD,MP<:Real}
-    @constraint(m, [i=1:length(s)],
+    @constraint(m, [i=eachindex(s)],
         s[i] <= bc.Mp * (1. - active_constraint[i])
     )
-    @constraint(m, [j=1:length(y)],
+    @constraint(m, [j=eachindex(y)],
         y[j] <= bc.Mp * (1. - variable_bound[j])
     )
     return nothing

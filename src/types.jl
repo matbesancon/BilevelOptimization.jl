@@ -83,9 +83,9 @@ end
 """
 Set a lower bound on a lower or higher variable of `bp` depending on `vartype`
 """
-function JuMP.setlowerbound(bp::BilevelLP, vartype::VariableType, j::Integer, v::T) where {T<:Real}
+function JuMP.set_lower_bound(bp::BilevelLP, vartype::VariableType, j::Integer, v::T) where {T<:Real}
     if vartype == lower::VariableType
-        if v ≈ 0.
+        if v ≈ 0
             bp.yl[j] = true
         elseif isinf(v) && v < 0.
             bp.yl[j] = false
