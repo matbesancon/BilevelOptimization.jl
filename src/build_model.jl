@@ -19,7 +19,7 @@ function build_blp_model(bp::BilevelLP, optimizer; comp_method = SOS1Complementa
         sum(bp.H[i,j]*y[j] for j in 1:bp.nl) <= bp.q[i])
     @objective(m, Min, sum(bp.cx .* x) + dot(bp.cy, y))
     for j in bp.Jx
-        JuMP.setcategory(x[j], :Int)
+        JuMP.set_integer(x[j])
     end
     # adding SOS1 constraints
     return build_blp_model(m, bp, x, y, comp_method = comp_method)
