@@ -52,12 +52,12 @@ Return `(m, r, y, f, λ, s)`
 - `λ`: flattened dual vector
 - `s`: flattened slack variables for the flow problem
 """
-function build_blp_model(bfp::BilevelFlowProblem, solver; comp_method = SOS1Complementarity())
-    m = JuMP.Model(solver = solver)
+function build_blp_model(bfp::BilevelFlowProblem, optimizer; comp_method = SOS1Complementarity())
+    m = JuMP.Model(optimizer)
     (nv, _, nopt) = size(bfp.tax_options)
     @variable(m, y[i=1:nv,j=1:nv,k=1:nopt], Bin)
-    @variable(m, r[i=1:nv,j=1:nv] >= 0.)
-    @variable(m, f[i=1:nv,j=1:nv] >= 0.)
+    @variable(m, r[i=1:nv,j=1:nv] >= 0)
+    @variable(m, f[i=1:nv,j=1:nv] >= 0)
     @constraint(m, revenue_limit[i=1:nv,j=1:nv,k=1:nopt], r[i,j] <= bfp.tax_options[i,j,k] * f[i,j] + maximum(bfp.tax_options[i,j,:]) * bfp.capacities[i,j]*(1-y[i,j,k]))
     @constraint(m, unique_opt[i=1:nv,j=1:nv], sum(y[i,j,k] for k in 1:nopt) == 1.)
     @objective(m, Max,
@@ -67,7 +67,7 @@ function build_blp_model(bfp::BilevelFlowProblem, solver; comp_method = SOS1Comp
     lin_cost  = [bfp.init_cost[i,j] + sum(y[i,j,k] * bfp.tax_options[i,j,k] for k in Base.OneTo(nopt)) for j in Base.OneTo(bfp.nv) for i in Base.OneTo(bfp.nv)]
     (B, b) = flow_constraint_standard(bfp)
     @variable(m,
-        s[i=1:length(b)] >= 0.
+        s[i=1:length(b)] >= 0
     )
     @constraint(m, B*flat_flow .+ s .== b)
     (_, λ, _) = build_blp_model(m, B, lin_cost, s, comp_method = comp_method)
