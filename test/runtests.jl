@@ -109,7 +109,7 @@ end
     set_lower_bound(prob, BilevelOptimization.lower, 2, 0.)
     setupperbound(prob, BilevelOptimization.lower, 2, 2.)
     @test size(prob.B) == (prob.ml,prob.nl)
-    (m, x, y, λ, _) = build_blp_model(prob, with_optimizer(Cbc.Optimizer))
+    (m, x, y, λ, _) = build_blp_model(prob, with_optimizer(Cbc.Optimizer, LogLevel = 0))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test all(JuMP.value.(x) .≈ (-1.,-1.))
@@ -146,7 +146,7 @@ end
         G, H, q,
         d, A, B, b, Jx, ylowerbound = false
     )
-    (m, x, y, λ, _) = build_blp_model(intprob, with_optimizer(Cbc.Optimizer))
+    (m, x, y, λ, _) = build_blp_model(intprob, with_optimizer(Cbc.Optimizer, LogLevel = 0))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test all(JuMP.value.(x) .≈ (2.,2.))
