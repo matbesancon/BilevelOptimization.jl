@@ -2,7 +2,7 @@ using BilevelOptimization
 using BilevelOptimization.BilevelFlowProblems
 
 using Test
-import LinearAlgebra
+using LinearAlgebra: I
 
 import Cbc
 using JuMP
@@ -214,7 +214,7 @@ end
     @test B[3,15] ≈ -1.
     @test b[3] ≈ 0.
     # capacity constraints
-    @test all(LinearAlgebra.I - B[4:end,:] .≈ 0)
+    @test all(I - B[4:end,:] .≈ 0)
     @test all(b[4:end] .≈ [bfp.capacities[i] for i in eachindex(bfp.capacities)])
 end
 

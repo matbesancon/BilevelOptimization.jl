@@ -3,6 +3,7 @@
 Convenience alias for a matrix of a sub-type of `Real`
 """
 const MT = AbstractMatrix{<:Real}
+
 """
 Convenience alias for a vector of a sub-type of `Real`
 """

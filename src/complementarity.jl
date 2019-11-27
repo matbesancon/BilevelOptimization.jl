@@ -8,20 +8,6 @@ add_complementarity_constraint(m, cm::ComplementarityMethod, s, λ)
 abstract type ComplementarityMethod end
 
 """
-Handle complementarity constraints with
-Special Ordered Sets of type 1
-"""
-struct SOS1Complementarity <: ComplementarityMethod end
-
-struct BoundComplementarity{MD,MP} <: ComplementarityMethod
-    Md::MD
-    Mp::MP
-    function BoundComplementarity(md::MD, mp::MP) where {MD <: Union{AbstractVector,Real}, MP <: Union{AbstractVector,Real}}
-        return new{MD,MP}(md,mp)
-    end
-end
-
-"""
 Add complementarity constraints to the JuMP model `m` for each pair
 `(s[i],λ[i])` with the corresponding complementarity method.
 ```
@@ -29,6 +15,12 @@ add_complementarity_constraint(m, cm::ComplementarityMethod, s, λ, y, σ)
 ```
 """
 function add_complementarity_constraint end
+
+"""
+Handle complementarity constraints with
+Special Ordered Sets of type 1
+"""
+struct SOS1Complementarity <: ComplementarityMethod end
 
 """
     add_complementarity_constraint(m, ::SOS1Complementarity, s, λ, y, σ)
@@ -42,8 +34,24 @@ function add_complementarity_constraint(m, ::SOS1Complementarity, s, λ, y, σ)
 end
 
 """
-Implements complementarity constraints using big-M type constraints
-Introduces binary variables:
+    BoundComplementarity{MD,MP}
+
+Represent complementarity constraints implemented using big-M bounds on primal
+and dual variables.
+"""
+struct BoundComplementarity{MD,MP} <: ComplementarityMethod
+    Md::MD
+    Mp::MP
+    function BoundComplementarity(md::MD, mp::MP) where {MD <: Union{AbstractVector,Real}, MP <: Union{AbstractVector,Real}}
+        return new{MD,MP}(md,mp)
+    end
+end
+
+"""
+    add_complementarity_constraint(m, bc::BoundComplementarity, s, λ, y, σ)
+
+Implement complementarity constraints using big-M type constraints.
+This formulation introduces binary variables:
 ```
 active_constraint[i] == 0 <=> λ[i] == 0
 active_constraint[i] == 1 <=> s[i] == 0
@@ -105,10 +113,11 @@ function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,<:Any}, active_const
 end
 
 """
-Add dual bounds with the same bound for all elements
+Add dual bounds with one same bound for all elements
 """
 function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,<:Any}, active_constraint, variable_bound, λ, σ) where {MD<:Real}
-    @constraint(m, [i=1:length(λ)],
+    ml = length(λ)
+    @constraint(m, [i=1:ml],
         λ[i] <= bc.Md * active_constraint[i]
     )
     @constraint(m, [j=1:length(σ)],
