@@ -111,3 +111,17 @@ function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,<:Any}, active_const
     )
     return nothing
 end
+
+"""
+Add dual bounds with one same bound for all elements
+"""
+function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,<:Any}, active_constraint, variable_bound, λ, σ) where {MD<:Real}
+    ml = length(λ)
+    @constraint(m, [i=1:ml],
+        λ[i] <= bc.Md * active_constraint[i]
+    )
+    @constraint(m, [j=1:length(σ)],
+        σ[j] <= bc.Md * variable_bound[j]
+    )
+    return nothing
+end
