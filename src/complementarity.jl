@@ -116,3 +116,35 @@ function add_bigm_dualbounds(m, bc::BoundComplementarity{MD,<:Any}, active_const
     )
     return nothing
 end
+
+
+"""
+    add_bigm_dualbounds(m, bc::BoundComplementarity{MD}, active_constraint, variable_bound, λ, σ) where {MD}
+
+Add dual bounds with the same bound for all elements.
+"""
+function add_bigm_dualbounds(m, bc::BoundComplementarity{MD}, active_constraint, variable_bound, λ, σ) where {MD}
+    @constraint(m, [i=1:length(λ)],
+        λ[i] <= bc.Md * active_constraint[i]
+    )
+    @constraint(m, [j=1:length(σ)],
+        σ[j] <= bc.Md * variable_bound[j]
+    )
+    return nothing
+end
+
+"""
+    NativeComplementarity
+
+Uses the `MathOptInterface.Complementarity` constraint directly.
+"""
+struct NativeComplementarity <: ComplementarityMethod
+end
+
+function add_complementarity_constraint(m, ::NativeComplementarity, s, λ, y, σ)
+    ml = length(s)
+    constraint_complementarity = @constraint(m, [s; λ] in MOI.Complements(ml))
+    nl = length(y)
+    variable_complementarity = @constraint(m, [y; σ] in MOI.Complements(nl))
+    return (constraint_complementarity, variable_complementarity)
+end
