@@ -235,6 +235,7 @@ Please read detailed information in **CONTRIBUTING.md**.
 
 ## Related packages
 
+* [BilevelJuMP.jl](https://github.com/joaquimg/BilevelJuMP.jl) is more flexible on the form of the problem input, and has been designed for MathOptInterface from the beginning, the two packages may be merged at some point
 * [Complementarity.jl](https://github.com/chkwon/Complementarity.jl) solving a generic class
 including bilevel problems using non-linear techniques
 * [MibS](https://github.com/coin-or/MibS) for problems where the lower-level also includes integer variables. KKT conditions can therefore not be used and other branching and cutting plane techniques are leveraged.
