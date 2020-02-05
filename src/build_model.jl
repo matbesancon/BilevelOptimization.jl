@@ -53,7 +53,7 @@ function build_blp_model(m::JuMP.Model, bp::BilevelLP, x, y; comp_method = SOS1C
             JuMP.set_lower_bound(y[j], 0)
         end
     end
-    @constraint(m, bp.d .+ bp.F' * x .+ bp.B' * λ  .- σ .== 0)
+    @constraint(m, [j in 1:bp.nl], bp.d[j] + dot(bp.F[:,j], x) + dot(bp.B[:,j], λ)  - σ[j] == 0)
     add_complementarity_constraint(m, comp_method, s, λ, y, σ)
     return (m, x, y, λ, s)
 end
@@ -85,7 +85,7 @@ end
 function build_blp_model(m::JuMP.Model, B::M, d, s; comp_method = SOS1Complementarity()) where {M<:MT}
     (ml, nl) = size(B)
     @variable(m, λ[1:ml] >= 0)
-    @constraint(m, kkt, d .+ B' * λ .== 0)
+    @constraint(m, kkt[j=1:nl], d[j] + dot(B[:,j], λ) == 0)
     add_complementarity_constraint(m, comp_method, s, λ, [], [])
     return (m, λ, s)
 end
