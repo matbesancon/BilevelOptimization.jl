@@ -21,7 +21,7 @@ end
 
 @testset "test basic problem" begin
     bp = test_bp()
-    (m, x, y, λ, _) = build_blp_model(bp, with_optimizer(Cbc.Optimizer, LogLevel = 0))
+    (m, x, y, λ, _) = build_blp_model(bp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     xv = JuMP.value.(x)
@@ -33,7 +33,7 @@ end
 @testset "Integrality is registered" begin
     bp = test_bp()
     push!(bp.Jx, 2) # second useless variable is integer
-    (m, x, y, λ, _) = build_blp_model(bp, with_optimizer(Cbc.Optimizer, LogLevel = 0))
+    (m, x, y, λ, _) = build_blp_model(bp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0))
     # @test JuMP.getcategory(x[2]) == :Int
     # @test JuMP.getcategory(x[1]) == :Cont
     # @test JuMP.getcategory(y[1]) == :Cont
@@ -58,7 +58,7 @@ end
         G, H, q,
         d, A, B, b
     )
-    (m, x, y, λ, _) = build_blp_model(prob, with_optimizer(Cbc.Optimizer, LogLevel = 0))
+    (m, x, y, λ, _) = build_blp_model(prob, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test JuMP.value(x[1]) ≈ 8
@@ -73,7 +73,7 @@ end
         G, H, q,
         d, A, B, b
     )
-    (m, x, y, λ, _) = build_blp_model(prob, with_optimizer(Cbc.Optimizer, LogLevel = 0))
+    (m, x, y, λ, _) = build_blp_model(prob, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test JuMP.value(x[1]) ≈ 6
@@ -109,7 +109,7 @@ end
     set_lower_bound(prob, BilevelOptimization.lower, 2, 0.)
     setupperbound(prob, BilevelOptimization.lower, 2, 2.)
     @test size(prob.B) == (prob.ml,prob.nl)
-    (m, x, y, λ, _) = build_blp_model(prob, with_optimizer(Cbc.Optimizer, LogLevel = 0))
+    (m, x, y, λ, _) = build_blp_model(prob, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test all(JuMP.value.(x) .≈ (-1.,-1.))
@@ -146,7 +146,7 @@ end
         G, H, q,
         d, A, B, b, Jx, ylowerbound = false
     )
-    (m, x, y, λ, _) = build_blp_model(intprob, with_optimizer(Cbc.Optimizer, LogLevel = 0))
+    (m, x, y, λ, _) = build_blp_model(intprob, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test all(JuMP.value.(x) .≈ (2.,2.))
@@ -161,7 +161,7 @@ end
         G, H, q,
         d, A, B, b, Jx
     )
-    (m, x, y, λ, _) = build_blp_model(intprob, with_optimizer(Cbc.Optimizer, LogLevel = 0))
+    (m, x, y, λ, _) = build_blp_model(intprob, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test all(JuMP.value.(x) .≈ (2.,2.))
@@ -220,7 +220,7 @@ end
 
 @testset "Bilevel flow JuMP model" begin
     bfp = test_bflow()
-    (m, r, y, f, λ) = build_blp_model(bfp, with_optimizer(Cbc.Optimizer, LogLevel = 0))
+    (m, r, y, f, λ) = build_blp_model(bfp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test JuMP.objective_value(m) ≈ 6.
@@ -239,18 +239,18 @@ end
 
 @testset "Basic problem with specified methods" begin
     bp = test_bp()
-    (m, x, y, λ) = build_blp_model(bp, with_optimizer(Cbc.Optimizer, LogLevel = 0), comp_method = SOS1Complementarity())
+    (m, x, y, λ) = build_blp_model(bp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0), comp_method = SOS1Complementarity())
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     xv = JuMP.value.(x)
     yv = JuMP.value.(y)
     @test xv[1] ≈ 0.0
     @test yv[1] ≈ 1.0
-    (m, _, _, _) = build_blp_model(bp, with_optimizer(Cbc.Optimizer, LogLevel = 0), comp_method = SOS1Complementarity())
+    (m, _, _, _) = build_blp_model(bp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0), comp_method = SOS1Complementarity())
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     # arbitrary big-enough bounds
-    (m, x, y, λ) = build_blp_model(bp, with_optimizer(Cbc.Optimizer, LogLevel = 0), comp_method = BoundComplementarity(100.,100.))
+    (m, x, y, λ) = build_blp_model(bp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0), comp_method = BoundComplementarity(100.,100.))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     xv = JuMP.value.(x)
@@ -261,7 +261,7 @@ end
 
 @testset "Bilevel flow big-M bounds" begin
     bfp = test_bflow()
-    (m, r, y, f, λ) = build_blp_model(bfp, with_optimizer(Cbc.Optimizer, LogLevel = 0), comp_method = BoundComplementarity(100., 100.))
+    (m, r, y, f, λ) = build_blp_model(bfp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0), comp_method = BoundComplementarity(100., 100.))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test JuMP.objective_value(m) ≈ 6.
@@ -275,7 +275,7 @@ end
 @testset "Bilevel flow big-M vector bounds" begin
     bfp = test_bflow()
     bounds_method = BoundComplementarity(10 .* ones(19), 30.)
-    (m, r, y, f, λ) = build_blp_model(bfp, with_optimizer(Cbc.Optimizer), comp_method = bounds_method)
+    (m, r, y, f, λ) = build_blp_model(bfp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0), comp_method = bounds_method)
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test JuMP.objective_value(m) ≈ 6.
@@ -285,7 +285,7 @@ end
         end
     end
     bounds_method = BoundComplementarity(10., 10 .* ones(19))
-    (m, r, y, f, λ) = build_blp_model(bfp, with_optimizer(Cbc.Optimizer, LogLevel = 0), comp_method = bounds_method)
+    (m, r, y, f, λ) = build_blp_model(bfp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0), comp_method = bounds_method)
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.OPTIMAL
     @test JuMP.objective_value(m) ≈ 6.
@@ -298,7 +298,7 @@ end
 
 @testset "Bilevel flow big-M infeasible" begin
     bfp = test_bflow()
-    (m, r, y, f, λ) = build_blp_model(bfp, with_optimizer(Cbc.Optimizer, LogLevel = 0), comp_method = BoundComplementarity(0.1, 0.1))
+    (m, r, y, f, λ) = build_blp_model(bfp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0), comp_method = BoundComplementarity(0.1, 0.1))
     JuMP.optimize!(m)
     @test termination_status(m) === MOI.INFEASIBLE
 end
