@@ -214,7 +214,7 @@ minflow = 3.
 
 BilevelFlowProblem(init_cost,taxable_edges,capacities,tax_options, minflow)
 
-(m, r, y, f, λ) = build_blp_model(bfp, with_optimizer(Cbc.Optimizer))
+(m, r, y, f, λ) = build_blp_model(bfp, optimizer_with_attributes(Cbc.Optimizer, "LogLevel" => 0))
 st = JuMP.optimize!(m)
 
 # objective_value(m) ≈ 6.
