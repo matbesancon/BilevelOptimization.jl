@@ -91,7 +91,7 @@ From the Julia REPL, type `?` to show the help prompt, then type the
 identifier you want the documentation for.
 
 ```julia
-julia> import BilevelOptimization
+julia> using BilevelOptimization
 
 help?> BilevelOptimization.BilevelLP
   A bilevel linear optimization problem of the form:
@@ -184,6 +184,8 @@ The required data include:
 ### Example:
 
 ```julia
+using BilevelOptimization.BilevelFlowProblems
+
 init_cost = [
 	0. 1. 1. 4.
 	0. 0. 0. 1.
